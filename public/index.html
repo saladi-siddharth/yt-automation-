@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Viral Hindi YouTube Automation Studio</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=Noto+Sans+Devanagari:wght@600;700;900&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <div class="dashboard-container">
+    
+    <header>
+      <div class="logo-group">
+        <div class="logo-icon">🔥</div>
+        <div>
+          <h1>Viral Hindi YouTube Studio</h1>
+          <p style="font-size: 13px; color: var(--text-muted); margin-top: 2px;">Animal & Nature Facts Autonomous Content Engine</p>
+        </div>
+      </div>
+      <div style="display: flex; align-items: center; gap: 16px;">
+        <a href="/auth/youtube" target="_blank" class="btn" style="background: linear-gradient(135deg, #ff0055, #ff5500); color: white; text-decoration: none; padding: 10px 18px; font-size: 13px;">
+          🔗 Connect YouTube Channel
+        </a>
+        <div class="badge-live">
+          <div class="pulse-dot"></div>
+          AUTOMATED SCHEDULER ACTIVE
+        </div>
+      </div>
+    </header>
+
+    <!-- Top Stats Bar -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-title">Daily Shorts Engine</div>
+        <div class="stat-value" id="statShortsDaily">3 / Day</div>
+        <div class="stat-sub">Slots: 09:00, 16:00, 20:00 IST</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-title">Weekly Long Videos</div>
+        <div class="stat-value" id="statLongWeekly">3 / Week</div>
+        <div class="stat-sub">Schedule: Tue, Thu, Sun @ 18:00</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-title">Content Repetition Score</div>
+        <div class="stat-value" style="color: #00ff88;">0% Duplication</div>
+        <div class="stat-sub" id="statFactsTracked">0 Facts Tracked in Memory</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-title">Target Language</div>
+        <div class="stat-value" style="color: var(--accent-cyan);">Hindi (हिंदी)</div>
+        <div class="stat-sub">Devanagari Subtitles & AI Voice</div>
+      </div>
+    </div>
+
+    <!-- Main Studio Grid -->
+    <div class="main-grid">
+      
+      <!-- Left Column: Trigger Actions & Real-Time Terminal -->
+      <div>
+        
+        <div class="panel">
+          <div class="panel-header">
+            <div class="panel-title">⚡ Instant Viral Generation Control</div>
+          </div>
+          <div class="actions-row">
+            <button class="btn btn-crimson" id="btnGenShort">
+              <span>🚀 Generate Hindi Short (35s)</span>
+            </button>
+            <button class="btn" id="btnGenLong">
+              <span>🎬 Generate Hindi Long Video (10m)</span>
+            </button>
+            <button class="btn" id="btnGenPython" style="background: linear-gradient(135deg, #00ff88, #00b894); color: #000;">
+              <span>🐍 Python ML Engine</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header">
+            <div class="panel-title">📡 Real-Time Pipeline Processing Logs</div>
+            <span style="font-size: 12px; color: var(--text-muted);" id="logStatus">Connected</span>
+          </div>
+          <div class="terminal-box" id="terminalBox">
+            <div>[09:00:00] [ScheduleManager] Engine initialized. Listening for cron slots...</div>
+            <div>[09:00:01] [TopicLedger] Memory ledger loaded. 0 duplicate topics detected.</div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header">
+            <div class="panel-title">🎬 Interactive Video Player (Play Generated Content)</div>
+          </div>
+          <div id="playerContainer" style="background: #000; border-radius: 12px; overflow: hidden; position: relative; min-height: 240px; display: flex; align-items: center; justify-content: center;">
+            <video id="studioVideoPlayer" controls style="width: 100%; max-height: 480px; display: none;" autoplay></video>
+            <div id="playerPlaceholder" style="color: var(--text-muted); text-align: center; padding: 40px;">
+              <div style="font-size: 40px; margin-bottom: 8px;">▶️</div>
+              <div>Select any video below to play directly in browser</div>
+            </div>
+          </div>
+          <div id="nowPlayingTitle" style="font-weight: 700; color: var(--accent-gold); margin-top: 12px; font-size: 14px;"></div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header">
+            <div class="panel-title">☁️ TiDB Cloud Stored Media Vault</div>
+            <span style="font-size: 11px; background: rgba(0, 242, 254, 0.15); color: var(--accent-cyan); padding: 4px 10px; border-radius: 12px; font-weight: 700;">TiDB Cloud Sync</span>
+          </div>
+          <div id="tidbVideoGallery" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 14px; max-height: 400px; overflow-y: auto;">
+            <div style="color: var(--text-muted); font-size: 13px; grid-column: 1/-1; text-align: center; padding: 20px;">
+              Loading TiDB Cloud Database records...
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Right Column: Schedule Rules & Topic Memory Ledger -->
+      <div>
+        
+        <div class="panel">
+          <div class="panel-header">
+            <div class="panel-title">📅 Publishing Slots</div>
+          </div>
+          <div style="font-size: 13px; color: var(--text-muted); line-height: 1.8;">
+            <div style="margin-bottom: 10px;">
+              <strong style="color: var(--text-main);">Daily Shorts Schedule:</strong><br>
+              • 09:00 AM IST (Morning Peak)<br>
+              • 04:00 PM IST (Afternoon Peak)<br>
+              • 08:00 PM IST (Evening Peak)
+            </div>
+            <div>
+              <strong style="color: var(--text-main);">Long Videos Schedule:</strong><br>
+              • Tuesday @ 06:00 PM IST<br>
+              • Thursday @ 06:00 PM IST<br>
+              • Sunday @ 06:00 PM IST
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header">
+            <div class="panel-title">🧠 Topic Memory Ledger</div>
+          </div>
+          <table class="table-list">
+            <thead>
+              <tr>
+                <th>Type</th>
+                <th>Topic (Hindi)</th>
+                <th>Score</th>
+              </tr>
+            </thead>
+            <tbody id="topicHistoryBody">
+              <tr>
+                <td colspan="3" style="color: var(--text-muted); text-align: center;">No topics generated yet. Click generate above!</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- Full-Width Media Library & Archive Section -->
+    <div class="panel" style="margin-top: 24px;">
+      <div class="panel-header">
+        <div class="panel-title">📚 Complete Media Library & Video Archive (Sorted by Generated Date)</div>
+        <div style="display: flex; gap: 10px;">
+          <input type="text" id="librarySearchInput" placeholder="Search by title..." style="background: rgba(0,0,0,0.5); border: 1px solid var(--panel-border); color: #fff; padding: 6px 12px; border-radius: 8px; font-size: 13px; outline: none;">
+        </div>
+      </div>
+
+      <!-- Filter Tabs -->
+      <div class="filter-tabs">
+        <button class="tab-btn active" data-filter="all">All Content</button>
+        <button class="tab-btn" data-filter="short">⚡ Shorts (9:16 Vertical)</button>
+        <button class="tab-btn" data-filter="long">🎬 Long Videos (16:9 Landscape)</button>
+      </div>
+
+      <!-- Media Cards Grid -->
+      <div class="library-grid" id="fullLibraryGrid">
+        <div style="color: var(--text-muted); padding: 30px; text-align: center; grid-column: 1/-1;">
+          Loading Media Library...
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Shorts 9:16 Interactive Mobile Player Modal -->
+  <div class="modal-overlay" id="shortsModal">
+    <div class="modal-content short-modal">
+      <div class="modal-header">
+        <div style="font-weight: 800; color: var(--accent-gold); font-size: 14px;" id="modalShortTitle">Shorts Preview</div>
+        <button class="modal-close" id="closeShortsModal">&times;</button>
+      </div>
+      <div style="background: #000; display: flex; justify-content: center; align-items: center; padding: 10px;">
+        <video id="modalShortVideoPlayer" controls autoplay loop style="width: 100%; max-height: 650px; border-radius: 12px; object-fit: contain;"></video>
+      </div>
+      <div style="padding: 14px; font-size: 12px; color: var(--text-muted);">
+        <div id="modalShortMeta" style="margin-bottom: 6px; color: var(--text-main); font-weight: 600;"></div>
+        <div>Devanagari Subtitles & Audio SFX Embedded</div>
+      </div>
+    </div>
+  </div>
+
+  <script src="/js/app.js"></script>
+</body>
+</html>
