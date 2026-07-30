@@ -23,24 +23,35 @@ export const scheduleManager = {
     this.log(`[ScheduleManager] Initializing Director AI Publishing Engine...`);
     this.log(`[ScheduleRules] Target: ${config.shortsPerDay} Shorts/day | ${config.longVideosPerWeek} Long videos/week`);
 
-    // Setup cron jobs
+    // Setup cron jobs (Offset generation to finish uploading exactly on time)
     config.shortsTimes.forEach((timeStr, idx) => {
       const [hour, min] = timeStr.split(':');
-      const cronExpr = `${min} ${hour} * * *`;
+      
+      // Calculate 15 minutes before the target time
+      let targetDate = new Date();
+      targetDate.setHours(parseInt(hour, 10));
+      targetDate.setMinutes(parseInt(min, 10));
+      targetDate.setMinutes(targetDate.getMinutes() - 15);
+      
+      const genHour = targetDate.getHours();
+      const genMin = targetDate.getMinutes();
+
+      const cronExpr = `${genMin} ${genHour} * * *`;
       
       const job = cron.schedule(cronExpr, () => {
-        this.log(`[CronTrigger] Daily Shorts slot #${idx + 1} (${timeStr} IST) triggered!`);
+        this.log(`[CronTrigger] Daily Shorts slot #${idx + 1} (${timeStr} IST upload) - Starting early generation!`);
         this.generateAndPublishVideo('short');
       });
-      this.activeJobs.push({ name: `Shorts_Slot_${idx+1}_${timeStr}`, cronExpr, job });
+      this.activeJobs.push({ name: `Shorts_Slot_${idx+1}_UploadAt_${timeStr}`, cronExpr, job });
     });
 
-    const longCronExpr = `0 18 * * 0,2,4`;
+    // Start Long Videos 60 minutes early (since 200-clip rendering takes a long time)
+    const longCronExpr = `0 17 * * *`; // 17:00 IST (1 hour before 18:00 upload)
     const longJob = cron.schedule(longCronExpr, () => {
-      this.log(`[CronTrigger] Long Video publishing window (6:00 PM IST) triggered!`);
+      this.log(`[CronTrigger] Long Video publishing window (18:00 IST upload) - Starting early generation!`);
       this.generateAndPublishVideo('long');
     });
-    this.activeJobs.push({ name: `LongVideo_TueThuSun_18:00`, cronExpr: longCronExpr, job: longJob });
+    this.activeJobs.push({ name: `LongVideo_Daily_UploadAt_18:00`, cronExpr: longCronExpr, job: longJob });
 
     this.log(`[ScheduleManager] All ${this.activeJobs.length} automated publishing slots active!`);
   },

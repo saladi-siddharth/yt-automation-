@@ -18,9 +18,17 @@ app.use(express.json());
 app.use(express.static(path.join(config.rootDir, 'public')));
 app.use('/output', express.static(config.outputDir));
 
+const logHistory = [];
+
 // Broadcast message to all connected dashboard WebSockets
 function broadcast(data) {
   const payload = typeof data === 'string' ? JSON.stringify({ type: 'log', message: data }) : JSON.stringify(data);
+  
+  if (typeof data === 'string' || (data && data.type === 'log')) {
+    logHistory.push(payload);
+    if (logHistory.length > 200) logHistory.shift(); // Keep last 200 logs in memory
+  }
+
   wss.clients.forEach((client) => {
     if (client.readyState === 1) {
       client.send(payload);
@@ -177,6 +185,12 @@ app.post('/api/generate/python', async (req, res) => {
 wss.on('connection', (ws) => {
   console.log('[WebSocket] Client connected to Studio Dashboard');
   ws.send(JSON.stringify({ type: 'log', message: '[WebSocket] Connected to Viral Hindi YouTube Studio Log Stream' }));
+  
+  // Restore log history for refreshed pages
+  logHistory.forEach(log => {
+    if (ws.readyState === 1) ws.send(log);
+  });
+  
   ws.send(JSON.stringify({ type: 'stats', stats: memoryLedger.getStats() }));
 });
 

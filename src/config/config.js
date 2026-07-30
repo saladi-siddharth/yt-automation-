@@ -25,8 +25,8 @@ export const config = {
   
   // Schedule Rules
   shortsPerDay: parseInt(process.env.SHORTS_PER_DAY || '3', 10),
-  longVideosPerWeek: parseInt(process.env.LONG_VIDEOS_PER_WEEK || '3', 10),
-  longVideoDays: (process.env.LONG_VIDEO_DAYS || 'Tuesday,Thursday,Sunday').split(','),
+  longVideosPerWeek: parseInt(process.env.LONG_VIDEOS_PER_WEEK || '7', 10),
+  longVideoDays: (process.env.LONG_VIDEO_DAYS || 'Monday,Tuesday,Wednesday,Thursday,Friday,Saturday,Sunday').split(','),
   
   // Schedule Hours (IST)
   shortsTimes: ['09:00', '16:00', '20:00'],

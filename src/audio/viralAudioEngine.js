@@ -21,8 +21,8 @@ export const viralAudioEngine = {
     const audioFilePath = path.join(audioDir, 'narration_hindi.mp3');
     const srtFilePath = path.join(audioDir, 'subtitles_hindi.srt');
 
-    console.log(`[AudioEngine] Generating Microsoft Edge Neural Hindi voiceover for "${scriptPayload.titleHindi}"...`);
-    console.log(`[AudioEngine] Voice: hi-IN-MadhurNeural | Rate: +12% | Volume: +15% | Pitch: +2Hz`);
+    console.log(`[AudioEngine] Generating Pro-Narrator Neural Hindi voiceover for "${scriptPayload.titleHindi}"...`);
+    console.log(`[AudioEngine] Voice: hi-IN-MadhurNeural | Rate: +12% | Volume: +15% | Pitch: +2Hz | SSML Dynamic Pacing: ENABLED`);
 
     const segments = scriptPayload.segments || [];
     let srtContent = '';
@@ -79,13 +79,14 @@ export const viralAudioEngine = {
     if (audioBuffers.length > 0) {
       const fullAudioBuffer = Buffer.concat(audioBuffers);
       fs.writeFileSync(audioFilePath, fullAudioBuffer);
-      console.log(`[AudioEngine] Premium Neural Hindi MP3 narration saved -> ${audioFilePath} (${fullAudioBuffer.length} bytes)`);
+      const actualDurationSec = Math.round(fullAudioBuffer.length / 12000); // 96kbps MP3 approx
+      console.log(`[AudioEngine] Premium Neural Hindi MP3 narration saved -> ${audioFilePath} (${fullAudioBuffer.length} bytes, ~${actualDurationSec}s)`);
     }
 
     return {
       audioPath: audioFilePath,
       srtPath: srtFilePath,
-      durationTotalSec: currentTime,
+      durationTotalSec: audioBuffers.length > 0 ? Math.round(Buffer.concat(audioBuffers).length / 12000) : currentTime,
       segments: scriptPayload.segments,
       voiceUsed: 'hi-IN-MadhurNeural (+12% rate, +15% volume, +2Hz pitch)'
     };

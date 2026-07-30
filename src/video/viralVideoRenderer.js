@@ -92,7 +92,7 @@ export const viralVideoRenderer = {
       // PHASE 2: Concatenate all processed clips
       // ═══════════════════════════════════════════════════════════════
       const concatListPath = path.join(videoOutputDir, 'concat_list.txt');
-      const concatContent = processedClips.map(p => `file '${p.replace(/\\/g, '/')}'`).join('\n');
+      const concatContent = processedClips.map(p => `file '${path.relative(videoOutputDir, p).replace(/\\/g, '/')}'`).join('\n');
       fs.writeFileSync(concatListPath, concatContent, 'utf-8');
 
       const rawConcatPath = path.join(videoOutputDir, 'raw_concat.mp4');
@@ -150,13 +150,19 @@ export const viralVideoRenderer = {
       );
 
       const vfChain = textFilters.join(',');
+      const filterScriptPath = path.join(videoOutputDir, 'filter_script.txt');
+      fs.writeFileSync(filterScriptPath, vfChain, 'utf-8');
 
-      // Final composite: raw_concat + audio + text overlays
+      // Final composite: raw_concat + audio + text overlays + Cinematic Background Drone with Ducking
       let finalCmd = '';
       if (hasAudio) {
-        finalCmd = `"${ffmpegPath}" -y -i "${rawConcatPath.replace(/\\/g, '/')}" -i "${audioManifest.audioPath.replace(/\\/g, '/')}" -vf "${vfChain}" -map 0:v -map 1:a -c:v libx264 -preset ultrafast -c:a aac -b:a 192k -shortest "${finalVideoPath.replace(/\\/g, '/')}"`;
+        // [0:v] raw video, [1:a] narration, [2:a] generated ambient drone (432Hz healing/suspense frequency)
+        // sidechaincompress automatically ducks the drone when narration plays
+        const duckingFilter = `[2:a]aformat=sample_rates=44100:channel_layouts=stereo,volume=0.4[bg_vol];[1:a]aformat=sample_rates=44100:channel_layouts=stereo,asplit=2[nar_sc][nar_mix];[bg_vol][nar_sc]sidechaincompress=threshold=0.015:ratio=5:attack=10:release=300[bg_ducked];[nar_mix]volume=1.5[nar_boost];[bg_ducked][nar_boost]amix=inputs=2:duration=first:dropout_transition=2[aout]`;
+        
+        finalCmd = `"${ffmpegPath}" -y -i "${rawConcatPath.replace(/\\/g, '/')}" -i "${audioManifest.audioPath.replace(/\\/g, '/')}" -f lavfi -i "aevalsrc=0.1*sin(2*PI*108*t)+0.05*sin(2*PI*110*t):s=44100:c=stereo" -filter_complex_script "${filterScriptPath.replace(/\\/g, '/')}" -filter_complex "${duckingFilter}" -map 0:v -map "[aout]" -c:v libx264 -preset ultrafast -c:a aac -b:a 192k -shortest "${finalVideoPath.replace(/\\/g, '/')}"`;
       } else {
-        finalCmd = `"${ffmpegPath}" -y -i "${rawConcatPath.replace(/\\/g, '/')}" -vf "${vfChain}" -c:v libx264 -preset ultrafast -pix_fmt yuv420p -t ${totalDuration} "${finalVideoPath.replace(/\\/g, '/')}"`;
+        finalCmd = `"${ffmpegPath}" -y -i "${rawConcatPath.replace(/\\/g, '/')}" -filter_complex_script "${filterScriptPath.replace(/\\/g, '/')}" -c:v libx264 -preset ultrafast -pix_fmt yuv420p -t ${totalDuration} "${finalVideoPath.replace(/\\/g, '/')}"`;
       }
 
       console.log(`[VideoRenderer] Applying Pro Editor FX: Captions + Progress Bar + Vignette + Color Grade...`);
@@ -165,6 +171,7 @@ export const viralVideoRenderer = {
       // Cleanup intermediate files
       try { fs.unlinkSync(rawConcatPath); } catch (e) {}
       try { fs.unlinkSync(concatListPath); } catch (e) {}
+      try { fs.unlinkSync(filterScriptPath); } catch (e) {}
 
     } catch (err) {
       console.warn(`[VideoRenderer] Pro Editor info: ${err.message}. Running fallback render...`);

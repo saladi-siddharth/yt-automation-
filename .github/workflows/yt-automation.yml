@@ -1,0 +1,90 @@
+name: Viral YouTube Automation Engine
+
+on:
+  schedule:
+    # -------------------------------------------------------------
+    # 🎬 DAILY SHORTS (3x per day)
+    # Starts 15 mins before IST publish times (09:00, 16:00, 20:00 IST)
+    # -------------------------------------------------------------
+    - cron: '15 03 * * *'  # 08:45 IST
+    - cron: '15 10 * * *'  # 15:45 IST (Wait, 16:00 IST is 10:30 UTC. 15 min early is 10:15 UTC. Correcting to 15 10)
+    - cron: '15 14 * * *'  # 19:45 IST (20:00 IST is 14:30 UTC. 15 min early is 14:15 UTC. Correcting to 15 14)
+    
+    # -------------------------------------------------------------
+    # 🎥 DAILY LONG VIDEOS (1x per day)
+    # Starts 60 mins before IST publish time (18:00 IST)
+    # 18:00 IST is 12:30 UTC. 60 min early is 11:30 UTC.
+    # -------------------------------------------------------------
+    - cron: '30 11 * * *'
+
+  # Allow manual triggering from the GitHub Actions tab
+  workflow_dispatch:
+    inputs:
+      video_type:
+        description: 'Type of video to generate (short or long)'
+        required: true
+        default: 'short'
+        type: choice
+        options:
+          - short
+          - long
+
+jobs:
+  generate_and_publish:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install System Dependencies (FFmpeg)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg
+
+      - name: Install Project Dependencies
+        run: npm ci
+
+      - name: Inject Secrets & Environment Variables
+        run: |
+          # Create .env file for configuration
+          echo "PORT=3000" > .env
+          echo "GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}" >> .env
+          echo "TIDB_PASSWORD=${{ secrets.TIDB_PASSWORD }}" >> .env
+          
+          # Create data directory
+          mkdir -p data
+          
+          # Write YouTube OAuth Tokens from Secret
+          echo '${{ secrets.YOUTUBE_TOKENS_JSON }}' > data/youtube_tokens.json
+          
+          # Set correct permissions
+          chmod 600 data/youtube_tokens.json
+
+      - name: Execute Automation Script (Scheduled Shorts)
+        if: github.event_name == 'schedule' && github.event.schedule != '30 11 * * *'
+        run: npm run generate:short
+
+      - name: Execute Automation Script (Scheduled Longs)
+        if: github.event_name == 'schedule' && github.event.schedule == '30 11 * * *'
+        run: npm run generate:long
+
+      - name: Execute Automation Script (Manual Dispatch)
+        if: github.event_name == 'workflow_dispatch'
+        run: npm run generate:${{ github.event.inputs.video_type }}
+
+      - name: Upload Logs & Manifest (On Failure/Success)
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: generation-outputs
+          path: |
+            output/
+            data/
+          retention-days: 3

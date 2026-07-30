@@ -30,12 +30,37 @@ export const scriptGenerator = {
   async generateHindiScript(topicCandidate, type = 'short') {
     const keyword = topicCandidate.keyword || 'Animals';
     const category = topicCandidate.category || 'Nature';
+    const topicText = topicCandidate.titleEnglish || keyword;
 
-    if (config.geminiApiKey) {
-      const aiPrompt = `Act as an expert YouTube creator. Generate a highly engaging viral Hindi script for YouTube ${type.toUpperCase()} about "${keyword}" (${category}). Return JSON with titleHindi, segments array with textHindi, stockQuery, and sfx.`;
+    if (config.geminiApiKey && topicCandidate.isRawIdea) {
+      const segmentCount = type === 'short' ? 7 : 10;
+      const aiPrompt = `Act as an elite Hollywood screenwriter and YouTube master. Generate a hyper-viral Hindi script for a YouTube ${type.toUpperCase()} about "${topicText}" (${category}). 
+      CRITICAL INSTRUCTIONS:
+      1. Use "Open Loops": The first sentence MUST tease a shocking secret or ending that is only revealed in the final segment, forcing 100% watch-time.
+      2. Use Psychological Hooks: Evoke curiosity, fear, or greed (e.g., "This one mistake is destroying your X...").
+      3. Use SSML Tags: Wrap highly dramatic words in <prosody rate="slow" pitch="-2st">...</prosody> and add <break time="800ms"/> before huge reveals.
+      
+      You MUST return exactly ${segmentCount} segments.
+      Return ONLY a JSON object (no markdown, no extra text) with the following structure:
+      {
+        "type": "${type}",
+        "language": "hindi",
+        "titleHindi": "Your hyper-viral hindi title",
+        "titleEnglish": "${topicText}",
+        "targetDurationSec": ${type === 'short' ? 55 : 660},
+        "viralScore": 99,
+        "segments": [
+          { "id": 1, "timeSec": 5, "textHindi": "Hindi narration with SSML tags", "stockQuery": "english visual search query", "keywordHighlight": "1-2 hindi words" }
+        ],
+        "fullHindiTranscript": "Full combined narration",
+        "metadata": {
+          "titleHindi": "Title", "descriptionHindi": "Desc", "tags": ["tag1", "tag2"], "thumbnailPrompt": "Midjourney style prompt"
+        }
+      }`;
       const aiResponse = await this.generateWithGemini(aiPrompt);
       if (aiResponse) {
-        console.log(`[GeminiAI] Generated script for "${keyword}"!`);
+        console.log(`[GeminiAI] Successfully generated Pro-Level dynamic AI script for "${topicText}"!`);
+        return aiResponse;
       }
     }
 

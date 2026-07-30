@@ -51,7 +51,8 @@ export const memoryLedger = {
 
     for (const item of memory.topics) {
       const existingTitle = normalize(item.titleHindi || '');
-      const existingWords = new Set(existingTitle.split(/\s+/).filter(w => w.length > 2));
+      const existingEnglish = normalize(item.titleEnglish || '');
+      const existingWords = new Set([...existingTitle.split(/\s+/), ...existingEnglish.split(/\s+/)].filter(w => w.length > 2));
       
       // Jaccard similarity score
       let intersection = 0;

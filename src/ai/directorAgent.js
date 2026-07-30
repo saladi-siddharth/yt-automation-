@@ -35,8 +35,8 @@ export const directorAgent = {
       const text = seg.textHindi || '';
       const baseQuery = seg.stockQuery || 'ocean creature nature';
 
-      // Split each segment into 2 fast-cut visual scenes
-      const cutCount = isShort ? 2 : 5;
+      // Split each segment into 1 visual scene for Shorts (7 clips total), or 20 for Longs (to hit >200 clips)
+      const cutCount = isShort ? 1 : 20;
       for (let c = 0; c < cutCount; c++) {
         const sceneNum = (idx * cutCount) + c + 1;
         const motions = ['slow zoom in', 'punch zoom', 'pan right', 'push out', 'whip pan'];
@@ -46,14 +46,15 @@ export const directorAgent = {
         scenes.push({
           sceneId: sceneNum,
           segmentId: seg.id,
-          durationSec: isShort ? (1.5 + (c * 0.8)) : 3.5,
+          durationSec: isShort ? (1.5 + (c * 0.8)) : 3.0, // 3 seconds per clip for Long videos (200 clips * 3s = 600s = 10 mins)
           textHindi: text,
           keywordHighlight: seg.keywordHighlight || 'अनोखा तथ्य',
           stockQuery: c === 0 ? baseQuery : `${baseQuery} macro close up`,
           visualQueries: [
             baseQuery,
             `${baseQuery} macro 4K`,
-            `${baseQuery} underwater animal`
+            `${baseQuery} underwater animal`,
+            `${baseQuery} cinematic epic wide`
           ],
           cameraMotion: motions[(sceneNum - 1) % motions.length],
           captionStyle: captionStyles[(sceneNum - 1) % captionStyles.length],
