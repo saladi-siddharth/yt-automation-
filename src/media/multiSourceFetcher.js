@@ -28,47 +28,63 @@ export const multiSourceFetcher = {
 
       broadcastLog(`[AssetCollector ${i + 1}/${scenes.length}] Scene #${scene.sceneId}: Searching for "${searchQuery}"...`);
 
+      const baseQuery = scene.stockQuery || 'nature wildlife';
+      // Build candidate queries from most specific to general
+      const candidateQueries = [
+        searchQuery,
+        baseQuery,
+        baseQuery.split(' ')[0], // First word e.g. "snake" from "black mamba snake"
+        'wildlife nature'
+      ].filter(Boolean);
+
       let downloadUrl = null;
 
-      // 1. Primary Search: Pexels API
-      if (config.pexelsApiKey) {
-        try {
-          const resp = await axios.get(`https://api.pexels.com/videos/search`, {
-            headers: { Authorization: config.pexelsApiKey },
-            params: { 
-              query: searchQuery, 
-              per_page: 8, 
-              orientation: orientation === 'portrait' ? 'portrait' : 'landscape' 
-            }
-          });
+      // Search through candidate queries until videos are found
+      for (const q of candidateQueries) {
+        if (downloadUrl) break;
 
-          if (resp.data.videos && resp.data.videos.length > 0) {
-            const chosen = resp.data.videos[i % resp.data.videos.length] || resp.data.videos[0];
-            const files = chosen.video_files;
-            const hdFile = files.find(f => f.quality === 'hd') || files[0];
-            downloadUrl = hdFile.link;
+        // 1. Primary Search: Pexels API
+        if (config.pexelsApiKey) {
+          try {
+            const resp = await axios.get(`https://api.pexels.com/videos/search`, {
+              headers: { Authorization: config.pexelsApiKey },
+              params: { 
+                query: q, 
+                per_page: 10, 
+                orientation: orientation === 'portrait' ? 'portrait' : 'landscape' 
+              }
+            });
+
+            if (resp.data.videos && resp.data.videos.length > 0) {
+              const chosen = resp.data.videos[i % resp.data.videos.length] || resp.data.videos[0];
+              const files = chosen.video_files;
+              const hdFile = files.find(f => f.quality === 'hd') || files[0];
+              downloadUrl = hdFile.link;
+              break;
+            }
+          } catch (e) {
+            console.warn(`[MultiSourceFetcher] Pexels query "${q}" info: ${e.message}`);
           }
-        } catch (e) {
-          console.warn(`[MultiSourceFetcher] Pexels info: ${e.message}`);
         }
-      }
 
-      // 2. Secondary Fallback: Pixabay API if key present
-      if (!downloadUrl && process.env.PIXABAY_API_KEY) {
-        try {
-          const resp = await axios.get(`https://pixabay.com/api/videos/`, {
-            params: {
-              key: process.env.PIXABAY_API_KEY,
-              q: searchQuery,
-              per_page: 5
+        // 2. Secondary Fallback: Pixabay API
+        if (!downloadUrl && process.env.PIXABAY_API_KEY) {
+          try {
+            const resp = await axios.get(`https://pixabay.com/api/videos/`, {
+              params: {
+                key: process.env.PIXABAY_API_KEY,
+                q: q,
+                per_page: 5
+              }
+            });
+            if (resp.data.hits && resp.data.hits.length > 0) {
+              const hit = resp.data.hits[0];
+              downloadUrl = hit.videos.medium.url || hit.videos.small.url;
+              break;
             }
-          });
-          if (resp.data.hits && resp.data.hits.length > 0) {
-            const hit = resp.data.hits[0];
-            downloadUrl = hit.videos.medium.url || hit.videos.small.url;
+          } catch (e2) {
+            console.warn(`[MultiSourceFetcher] Pixabay query "${q}" info: ${e2.message}`);
           }
-        } catch (e2) {
-          console.warn(`[MultiSourceFetcher] Pixabay info: ${e2.message}`);
         }
       }
 
