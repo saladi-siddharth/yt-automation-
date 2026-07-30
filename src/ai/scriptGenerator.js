@@ -33,12 +33,15 @@ export const scriptGenerator = {
     const topicText = topicCandidate.titleEnglish || keyword;
 
     if (config.geminiApiKey && topicCandidate.isRawIdea) {
-      const segmentCount = type === 'short' ? 7 : 10;
-      const aiPrompt = `Act as an elite Hollywood screenwriter and YouTube master. Generate a hyper-viral Hindi script for a YouTube ${type.toUpperCase()} about "${topicText}" (${category}). 
+      const segmentCount = type === 'short' ? 7 : 15;
+      const lengthRule = type === 'short' ? "a hyper-viral Hindi script for a YouTube SHORT" : "a massive, highly detailed 1500+ word script for a 12-minute YouTube LONG video";
+      
+      const aiPrompt = `Act as an elite Hollywood screenwriter and YouTube master. Generate ${lengthRule} about "${topicText}" (${category}). 
       CRITICAL INSTRUCTIONS:
       1. Use "Open Loops": The first sentence MUST tease a shocking secret or ending that is only revealed in the final segment, forcing 100% watch-time.
       2. Use Psychological Hooks: Evoke curiosity, fear, or greed (e.g., "This one mistake is destroying your X...").
       3. Use SSML Tags: Wrap highly dramatic words in <prosody rate="slow" pitch="-2st">...</prosody> and add <break time="800ms"/> before huge reveals.
+      ${type === 'long' ? '4. EXACT WORD COUNT: Your script MUST be at least 1500 words long in total. Each of the 15 segments MUST have at least 100-120 words of highly detailed narration.' : ''}
       
       You MUST return exactly ${segmentCount} segments.
       Return ONLY a JSON object (no markdown, no extra text) with the following structure:
@@ -50,7 +53,7 @@ export const scriptGenerator = {
         "targetDurationSec": ${type === 'short' ? 55 : 660},
         "viralScore": 99,
         "segments": [
-          { "id": 1, "timeSec": 5, "textHindi": "Hindi narration with SSML tags", "stockQuery": "english visual search query", "keywordHighlight": "1-2 hindi words" }
+          { "id": 1, "timeSec": ${type === 'short' ? 5 : 45}, "textHindi": "Hindi narration with SSML tags", "stockQuery": "english visual search query", "keywordHighlight": "1-2 hindi words" }
         ],
         "fullHindiTranscript": "Full combined narration",
         "metadata": {

@@ -68,7 +68,7 @@ export const scheduleManager = {
   /**
    * Main End-to-End Autonomous Pipeline Execution with Director AI & Storyboard Architect
    */
-  async generateAndPublishVideo(type = 'short') {
+  async generateAndPublishVideo(type = 'short', targetPublishDate = null) {
     if (this.isProcessing) {
       this.log(`[Pipeline] A generation job is currently running. Queueing request...`);
       return;
@@ -140,7 +140,8 @@ export const scheduleManager = {
           title: scriptPayload.metadata ? scriptPayload.metadata.titleHindi : scriptPayload.titleHindi,
           description: scriptPayload.metadata ? scriptPayload.metadata.descriptionHindi : scriptPayload.titleHindi,
           tags: scriptPayload.metadata ? scriptPayload.metadata.tags : ['animal facts hindi', 'shorts'],
-          privacyStatus: 'public'
+          privacyStatus: targetPublishDate ? 'private' : 'public',
+          publishAt: targetPublishDate ? targetPublishDate.toISOString() : null
         });
         if (uploadResult.success) {
           this.log(`[YouTubeUpload SUCCESS] Video published directly to YouTube channel! Video URL: ${uploadResult.url}`);

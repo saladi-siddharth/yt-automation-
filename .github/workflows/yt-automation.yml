@@ -12,10 +12,10 @@ on:
     
     # -------------------------------------------------------------
     # 🎥 DAILY LONG VIDEOS (1x per day)
-    # Starts 60 mins before IST publish time (18:00 IST)
-    # 18:00 IST is 12:30 UTC. 60 min early is 11:30 UTC.
+    # Generated overnight at 03:00 AM IST (21:30 UTC) to reduce server load.
+    # Uploaded as private and scheduled to publish at exactly 18:00 IST via YouTube API.
     # -------------------------------------------------------------
-    - cron: '30 11 * * *'
+    - cron: '30 21 * * *'
 
   # Allow manual triggering from the GitHub Actions tab
   workflow_dispatch:
@@ -68,11 +68,11 @@ jobs:
           chmod 600 data/youtube_tokens.json
 
       - name: Execute Automation Script (Scheduled Shorts)
-        if: github.event_name == 'schedule' && github.event.schedule != '30 11 * * *'
+        if: github.event_name == 'schedule' && github.event.schedule != '30 21 * * *'
         run: npm run generate:short
 
       - name: Execute Automation Script (Scheduled Longs)
-        if: github.event_name == 'schedule' && github.event.schedule == '30 11 * * *'
+        if: github.event_name == 'schedule' && github.event.schedule == '30 21 * * *'
         run: npm run generate:long
 
       - name: Execute Automation Script (Manual Dispatch)

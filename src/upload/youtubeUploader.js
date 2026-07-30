@@ -73,7 +73,7 @@ export const youtubeUploader = {
   /**
    * Upload video file directly to YouTube channel
    */
-  async uploadVideo({ videoPath, title, description, tags, privacyStatus = 'private' }) {
+  async uploadVideo({ videoPath, title, description, tags, privacyStatus = 'private', publishAt = null }) {
     const youtube = this.getAuthenticatedClient();
     if (!youtube) {
       console.log('[YouTubeUploader] Channel not connected yet. Video saved locally in output directory.');
@@ -93,7 +93,8 @@ export const youtubeUploader = {
         },
         status: {
           privacyStatus, // 'private', 'unlisted', or 'public'
-          selfDeclaredMadeForKids: false
+          selfDeclaredMadeForKids: false,
+          publishAt: publishAt || undefined
         }
       },
       media: {

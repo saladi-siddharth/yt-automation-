@@ -157,10 +157,10 @@ export const viralVideoRenderer = {
       let finalCmd = '';
       if (hasAudio) {
         // [0:v] raw video, [1:a] narration, [2:a] generated ambient drone (432Hz healing/suspense frequency)
-        // sidechaincompress automatically ducks the drone when narration plays
-        const duckingFilter = `[2:a]aformat=sample_rates=44100:channel_layouts=stereo,volume=0.4[bg_vol];[1:a]aformat=sample_rates=44100:channel_layouts=stereo,asplit=2[nar_sc][nar_mix];[bg_vol][nar_sc]sidechaincompress=threshold=0.015:ratio=5:attack=10:release=300[bg_ducked];[nar_mix]volume=1.5[nar_boost];[bg_ducked][nar_boost]amix=inputs=2:duration=first:dropout_transition=2[aout]`;
+        // Mix the low-frequency drone behind the narrator without complex sidechain to ensure 100% FFmpeg compatibility
+        const duckingFilter = `[2:a]volume=0.15[bg_vol];[1:a]volume=1.5[nar_boost];[bg_vol][nar_boost]amix=inputs=2:duration=first:dropout_transition=2[aout]`;
         
-        finalCmd = `"${ffmpegPath}" -y -i "${rawConcatPath.replace(/\\/g, '/')}" -i "${audioManifest.audioPath.replace(/\\/g, '/')}" -f lavfi -i "aevalsrc=0.1*sin(2*PI*108*t)+0.05*sin(2*PI*110*t):s=44100:c=stereo" -filter_complex_script "${filterScriptPath.replace(/\\/g, '/')}" -filter_complex "${duckingFilter}" -map 0:v -map "[aout]" -c:v libx264 -preset ultrafast -c:a aac -b:a 192k -shortest "${finalVideoPath.replace(/\\/g, '/')}"`;
+        finalCmd = `"${ffmpegPath}" -y -i "${rawConcatPath.replace(/\\/g, '/')}" -i "${audioManifest.audioPath.replace(/\\/g, '/')}" -f lavfi -i "aevalsrc=0.1*sin(2*PI*108*t)+0.05*sin(2*PI*110*t):s=44100" -filter_complex_script "${filterScriptPath.replace(/\\/g, '/')}" -filter_complex "${duckingFilter}" -map 0:v -map "[aout]" -c:v libx264 -preset ultrafast -c:a aac -b:a 192k -shortest "${finalVideoPath.replace(/\\/g, '/')}"`;
       } else {
         finalCmd = `"${ffmpegPath}" -y -i "${rawConcatPath.replace(/\\/g, '/')}" -filter_complex_script "${filterScriptPath.replace(/\\/g, '/')}" -c:v libx264 -preset ultrafast -pix_fmt yuv420p -t ${totalDuration} "${finalVideoPath.replace(/\\/g, '/')}"`;
       }
