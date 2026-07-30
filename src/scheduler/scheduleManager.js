@@ -89,13 +89,13 @@ export const scheduleManager = {
       this.log(`Step 2/7: Synthesizing pattern-interrupt Hindi script...`);
       const scriptPayload = await scriptGenerator.generateHindiScript(topicCandidate, type);
 
-      // 3. Director AI & Storyboard Architect
-      this.log(`Step 3/7: Director AI reviewing script virality metrics & constructing scene storyboard...`);
-      const storyboard = await directorAgent.reviewAndCreateStoryboard(scriptPayload, (msg) => this.log(msg));
-
-      // 4. Audio & Timestamp Subtitle Engine
-      this.log(`Step 4/7: Generating Microsoft Edge Neural Hindi voiceover & Devanagari SRT subtitles...`);
+      // 3. Audio & Timestamp Subtitle Engine (Generate MP3 FIRST to get exact duration)
+      this.log(`Step 3/7: Generating Microsoft Edge Neural Hindi voiceover & Devanagari SRT subtitles...`);
       const audioManifest = await viralAudioEngine.generateHindiAudio(scriptPayload, outputId);
+
+      // 4. Director AI & Storyboard Architect (Uses EXACT spoken MP3 duration!)
+      this.log(`Step 4/7: Director AI reviewing script virality metrics & constructing scene storyboard...`);
+      const storyboard = await directorAgent.reviewAndCreateStoryboard(scriptPayload, audioManifest.durationSec || 0, (msg) => this.log(msg));
 
       // 5. Multi-Source Asset Collector (Pexels, Pixabay, Unsplash)
       this.log(`Step 5/7: Retrieving multi-source HD video clips matching storyboard scene queries...`);

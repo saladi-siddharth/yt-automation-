@@ -135,11 +135,11 @@ export const viralVideoRenderer = {
           }
         }
 
-        // Scene number indicator (Fact 1/7, Fact 2/7, etc.)
-        if (segments.length > 1) {
-          const factLabel = `Fact ${idx + 1}/${segments.length}`;
+        // Dynamic Top Headline / Fact Badge — prominent top center display matching exact spoken segment
+        const topHighlight = (seg.keywordHighlight || seg.stockQuery || '').replace(/'/g, '').replace(/"/g, '').replace(/:/g, ' ').substring(0, 35);
+        if (topHighlight) {
           textFilters.push(
-            `drawtext=fontfile='${fontPath}':text='${factLabel}':fontcolor=cyan:fontsize=28:borderw=2:bordercolor=black:x=40:y=50:enable='between(t,${startSec},${endSec})'`
+            `drawtext=fontfile='${fontPath}':text='🔥 ${topHighlight} 🔥':fontcolor=yellow:fontsize=42:borderw=4:bordercolor=black:x=(w-text_w)/2:y=60:enable='between(t,${startSec},${endSec})'`
           );
         }
       });
