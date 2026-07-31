@@ -29,7 +29,7 @@ export const config = {
   longVideoDays: (process.env.LONG_VIDEO_DAYS || 'Monday,Tuesday,Wednesday,Thursday,Friday,Saturday,Sunday').split(','),
   
   // Schedule Hours (IST)
-  shortsTimes: ['09:00', '16:00', '20:00'],
+  shortsTimes: ['08:00', '16:00', '20:00'],
   longVideoTime: '18:00',
 
   // Audio Settings

@@ -4,11 +4,11 @@ on:
   schedule:
     # -------------------------------------------------------------
     # 🎬 DAILY SHORTS (3x per day)
-    # Starts 15 mins before IST publish times (09:00, 16:00, 20:00 IST)
+    # Starts 15 mins before IST publish times (08:00, 16:00, 20:00 IST)
     # -------------------------------------------------------------
-    - cron: '15 03 * * *'  # 08:45 IST
-    - cron: '15 10 * * *'  # 15:45 IST (Wait, 16:00 IST is 10:30 UTC. 15 min early is 10:15 UTC. Correcting to 15 10)
-    - cron: '15 14 * * *'  # 19:45 IST (20:00 IST is 14:30 UTC. 15 min early is 14:15 UTC. Correcting to 15 14)
+    - cron: '15 02 * * *'  # 07:45 IST (for 08:00 IST publish)
+    - cron: '15 10 * * *'  # 15:45 IST (for 16:00 IST publish)
+    - cron: '15 14 * * *'  # 19:45 IST (for 20:00 IST publish)
     
     # -------------------------------------------------------------
     # 🎥 DAILY LONG VIDEOS (1x per day)
