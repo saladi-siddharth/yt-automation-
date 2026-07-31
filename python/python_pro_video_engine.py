@@ -34,7 +34,7 @@ class PythonProVideoEngine:
 
         if not clip_files:
             print("[PythonProEngine Warning] No Pexels clips found, using color generator fallback.")
-            cmd = f'"{self.ffmpeg_bin}" -y -f lavfi -i color=c=0x0f0c29:s={width}x{height}:d=55 -i "{os.path.abspath(audio_file)}" -vf "drawtext=fontfile=\'C\\:/Windows/Fonts/arial.ttf\':text=\'Animal Fact\':fontcolor=yellow:fontsize=48:x=(w-text_w)/2:y=(h-text_h)/2" -c:v libx264 -c:a aac -shortest "{os.path.abspath(final_mp4_path)}"'
+            cmd = f'"{self.ffmpeg_bin}" -y -f lavfi -i color=c=0x0f0c29:s={width}x{height}:d=55 -i "{os.path.abspath(audio_file)}" -vf "drawtext=fontfile=\'C\\:/Windows/Fonts/arialbd.ttf\':text=\'Viral Animal Facts\':fontcolor=white:fontsize=48:box=1:boxcolor=black@0.75:boxborderw=10:x=(w-text_w)/2:y=(h-text_h)/2" -c:v libx264 -c:a aac -shortest "{os.path.abspath(final_mp4_path)}"'
             subprocess.run(cmd, shell=True, check=True)
             return final_mp4_path
 
@@ -45,9 +45,9 @@ class PythonProVideoEngine:
                 rel_clip = os.path.relpath(c, video_dir).replace("\\", "/")
                 f.write(f"file '{rel_clip}'\n")
 
-        # Subtitle Burn-In Style Filter (Glowing Yellow Text with Black Outline)
+        # Subtitle Burn-In Style Filter (Clean Crisp White Text with Black Box & Outline)
         clean_srt = os.path.relpath(srt_file, video_dir).replace("\\", "/").replace(":", "\\:")
-        vf_filter = f"scale={width}:{height}:force_original_aspect_ratio=increase,crop={width}:{height},subtitles={clean_srt}:force_style='Fontname=Arial,FontSize=22,PrimaryColour=&H0000FFFF,OutlineColour=&H00000000,BorderStyle=1,Outline=3,Shadow=2,Alignment=2'"
+        vf_filter = f"scale={width}:{height}:force_original_aspect_ratio=increase,crop={width}:{height},subtitles={clean_srt}:force_style='Fontname=Arial Bold,FontSize=20,PrimaryColour=&H00FFFFFF,OutlineColour=&H00000000,BorderStyle=4,Outline=2,Shadow=1,Alignment=2'"
 
         clean_audio = os.path.relpath(audio_file, video_dir).replace("\\", "/")
         clean_out = os.path.relpath(final_mp4_path, video_dir).replace("\\", "/")

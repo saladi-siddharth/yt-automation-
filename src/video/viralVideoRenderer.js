@@ -102,51 +102,47 @@ export const viralVideoRenderer = {
       // ═══════════════════════════════════════════════════════════════
       // PHASE 3: Add animated text overlays + progress bar + gradient bars
       // ═══════════════════════════════════════════════════════════════
-      const fontPath = 'C\\:/Windows/Fonts/arial.ttf';
+      const fontPath = fs.existsSync('C:/Windows/Fonts/arialbd.ttf') ? 'C\\:/Windows/Fonts/arialbd.ttf' : 'C\\:/Windows/Fonts/arial.ttf';
 
       // Build drawtext filters for each segment caption
       let textFilters = [];
 
       // Dark gradient bars (top & bottom) for cinematic letterbox
-      textFilters.push(`drawbox=x=0:y=0:w=${res.w}:h=120:color=black@0.6:t=fill`);
-      textFilters.push(`drawbox=x=0:y=${res.h - 120}:w=${res.w}:h=120:color=black@0.6:t=fill`);
+      textFilters.push(`drawbox=x=0:y=0:w=${res.w}:h=110:color=black@0.55:t=fill`);
+      textFilters.push(`drawbox=x=0:y=${res.h - 140}:w=${res.w}:h=140:color=black@0.65:t=fill`);
 
-      // Progress bar at bottom (animated width based on time)
-      textFilters.push(`drawbox=x=0:y=${res.h - 6}:w='(t/${totalDuration})*${res.w}':h=6:color=yellow@0.9:t=fill`);
+      // Progress bar at bottom (animated cyan neon progress track)
+      textFilters.push(`drawbox=x=0:y=${res.h - 8}:w=${res.w}:h=8:color=white@0.2:t=fill`);
+      textFilters.push(`drawbox=x=0:y=${res.h - 8}:w='(t/${totalDuration})*${res.w}':h=8:color=0x00E5FF@0.95:t=fill`);
 
-      // Animated captions for each segment
+      // 🎬 Title Intro Banner (Appears only during the first 0-4 seconds)
+      const cleanTitle = (scriptPayload.titleHindi || scriptPayload.titleEnglish || 'Viral Animal Facts').replace(/'/g, '').replace(/"/g, '').replace(/:/g, ' ').substring(0, 45);
+      if (cleanTitle) {
+        textFilters.push(
+          `drawtext=fontfile='${fontPath}':text='✨ ${cleanTitle} ✨':fontcolor=white:fontsize=36:box=1:boxcolor=black@0.75:boxborderw=12:x=(w-text_w)/2:y=35:enable='between(t,0,4)':alpha='if(gt(t,3),1-(t-3)/1,1)'`
+        );
+      }
+
+      // Animated captions for each segment (Clean, Centered, Boxed — NO Middle Yellow Floating Numbers!)
+      const subY = isShort ? res.h - 260 : res.h - 180;
+      const subFontSize = isShort ? 38 : 34;
+
       segments.forEach((seg, idx) => {
         const startSec = idx === 0 ? 0 : segments.slice(0, idx).reduce((sum, s) => sum + (s.timeSec || 5), 0);
         const endSec = startSec + (seg.timeSec || 5);
-        const captionText = (seg.textHindi || '').replace(/'/g, '').replace(/"/g, '').replace(/:/g, ' ').substring(0, 60);
-        const highlight = (seg.keywordHighlight || '').replace(/'/g, '').replace(/"/g, '').replace(/:/g, ' ').substring(0, 25);
+        const captionText = (seg.textHindi || '').replace(/'/g, '').replace(/"/g, '').replace(/:/g, ' ').substring(0, 70);
 
         if (captionText) {
-          // Main caption text — white, center-bottom with fade-in
+          // Clean White Caption with Dark Background Box & Smooth 0.2s Fade-In
           textFilters.push(
-            `drawtext=fontfile='${fontPath}':text='${captionText}':fontcolor=white:fontsize=36:borderw=3:bordercolor=black:x=(w-text_w)/2:y=${res.h - 280}:enable='between(t,${startSec},${endSec})':alpha='if(lt(t-${startSec},0.5),(t-${startSec})*2,1)'`
-          );
-
-          // Keyword highlight — yellow, larger, above main caption with pop effect
-          if (highlight) {
-            textFilters.push(
-              `drawtext=fontfile='${fontPath}':text='${highlight}':fontcolor=yellow:fontsize=48:borderw=4:bordercolor=black:x=(w-text_w)/2:y=${res.h - 340}:enable='between(t,${startSec + 0.5},${endSec})':alpha='if(lt(t-${startSec}-0.5,0.3),(t-${startSec}-0.5)*3.3,1)'`
-            );
-          }
-        }
-
-        // Dynamic Top Headline / Fact Badge — prominent top center display matching exact spoken segment
-        const topHighlight = (seg.keywordHighlight || seg.stockQuery || '').replace(/'/g, '').replace(/"/g, '').replace(/:/g, ' ').substring(0, 35);
-        if (topHighlight) {
-          textFilters.push(
-            `drawtext=fontfile='${fontPath}':text='🔥 ${topHighlight} 🔥':fontcolor=yellow:fontsize=42:borderw=4:bordercolor=black:x=(w-text_w)/2:y=60:enable='between(t,${startSec},${endSec})'`
+            `drawtext=fontfile='${fontPath}':text='${captionText}':fontcolor=white:fontsize=${subFontSize}:box=1:boxcolor=black@0.75:boxborderw=10:borderw=2:bordercolor=black:x=(w-text_w)/2:y=${subY}:enable='between(t,${startSec},${endSec})':alpha='if(lt(t-${startSec},0.2),(t-${startSec})*5,1)'`
           );
         }
       });
 
-      // Channel watermark at top-right
+      // Subtle Channel Watermark at top-right
       textFilters.push(
-        `drawtext=fontfile='${fontPath}':text='@AnimalFacts':fontcolor=white@0.5:fontsize=22:x=${res.w - 220}:y=50`
+        `drawtext=fontfile='${fontPath}':text='@ViralFactsHindi':fontcolor=white@0.5:fontsize=20:x=${res.w - 230}:y=40`
       );
 
       const vfChain = textFilters.join(',');

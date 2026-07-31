@@ -1,23 +1,22 @@
-name: Viral YouTube Shorts Generator
+name: Viral YouTube Long Video Generator
 
 on:
   schedule:
     # -------------------------------------------------------------
-    # 🎬 DAILY SHORTS (3x per day)
-    # Starts 15 mins before IST publish times (08:00, 16:00, 20:00 IST)
+    # 🎥 DAILY LONG VIDEOS (1x per day)
+    # Starts at 17:00 IST (11:30 UTC) to generate, render & upload
+    # scheduled for 18:00 IST publishing on YouTube.
     # -------------------------------------------------------------
-    - cron: '15 02 * * *'  # 07:45 IST (for 08:00 IST publish)
-    - cron: '15 10 * * *'  # 15:45 IST (for 16:00 IST publish)
-    - cron: '15 14 * * *'  # 19:45 IST (for 20:00 IST publish)
+    - cron: '30 11 * * *'  # 17:00 IST (11:30 UTC)
 
-  # Allow manual triggering of Shorts from GitHub Actions UI
+  # Allow manual triggering of Long Video generation from GitHub Actions UI
   workflow_dispatch:
 
 jobs:
-  generate_shorts:
-    name: Generate & Publish Short
+  generate_long_video:
+    name: Generate & Publish Long Video
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 60
     
     steps:
       - name: Checkout Code
@@ -53,14 +52,14 @@ jobs:
           # Set correct permissions
           chmod 600 data/youtube_tokens.json
 
-      - name: Execute Shorts Automation Script
-        run: npm run generate:short
+      - name: Execute Long Video Automation Script
+        run: npm run generate:long
 
       - name: Upload Logs & Manifest (On Failure/Success)
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: shorts-video-outputs
+          name: long-video-outputs
           path: |
             output/
             data/
