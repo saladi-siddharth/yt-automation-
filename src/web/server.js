@@ -153,6 +153,43 @@ app.post('/api/generate/short', async (req, res) => {
   }
 });
 
+// Secure Cloud Webhook Trigger Endpoints (For Cron-Job.org / External Schedulers)
+app.get('/api/cron/short', async (req, res) => {
+  const secretKey = req.query.key || req.headers['x-cron-key'];
+  const expectedKey = process.env.CRON_SECRET || 'viral_secret_123';
+  
+  if (secretKey !== expectedKey) {
+    return res.status(401).json({ error: 'Unauthorized: Invalid Cron Secret Key' });
+  }
+
+  try {
+    broadcast('[CloudWebhook] Triggered automated Shorts generation via Cloud Webhook!');
+    const result = await scheduleManager.generateAndPublishVideo('short');
+    broadcast({ type: 'stats', stats: memoryLedger.getStats() });
+    res.json({ success: true, message: 'Short generation triggered', result });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.get('/api/cron/long', async (req, res) => {
+  const secretKey = req.query.key || req.headers['x-cron-key'];
+  const expectedKey = process.env.CRON_SECRET || 'viral_secret_123';
+  
+  if (secretKey !== expectedKey) {
+    return res.status(401).json({ error: 'Unauthorized: Invalid Cron Secret Key' });
+  }
+
+  try {
+    broadcast('[CloudWebhook] Triggered automated Long video generation via Cloud Webhook!');
+    const result = await scheduleManager.generateAndPublishVideo('long');
+    broadcast({ type: 'stats', stats: memoryLedger.getStats() });
+    res.json({ success: true, message: 'Long video generation triggered', result });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 app.post('/api/generate/long', async (req, res) => {
   try {
     const result = await scheduleManager.generateAndPublishVideo('long');

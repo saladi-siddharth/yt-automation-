@@ -41,16 +41,25 @@ jobs:
           # Create .env file for configuration
           echo "PORT=3000" > .env
           echo "GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}" >> .env
+          echo "YOUTUBE_CLIENT_ID=${{ secrets.YOUTUBE_CLIENT_ID }}" >> .env
+          echo "YOUTUBE_CLIENT_SECRET=${{ secrets.YOUTUBE_CLIENT_SECRET }}" >> .env
+          echo "YOUTUBE_API_KEY=${{ secrets.YOUTUBE_API_KEY }}" >> .env
+          echo "PEXELS_API_KEY=${{ secrets.PEXELS_API_KEY }}" >> .env
+          echo "PIXABAY_API_KEY=${{ secrets.PIXABAY_API_KEY }}" >> .env
+          echo "TIDB_HOST=${{ secrets.TIDB_HOST }}" >> .env
+          echo "TIDB_PORT=${{ secrets.TIDB_PORT }}" >> .env
+          echo "TIDB_USER=${{ secrets.TIDB_USER }}" >> .env
           echo "TIDB_PASSWORD=${{ secrets.TIDB_PASSWORD }}" >> .env
+          echo "TIDB_DATABASE=${{ secrets.TIDB_DATABASE }}" >> .env
           
           # Create data directory
           mkdir -p data
           
-          # Write YouTube OAuth Tokens from Secret
-          echo '${{ secrets.YOUTUBE_TOKENS_JSON }}' > data/youtube_tokens.json
-          
-          # Set correct permissions
-          chmod 600 data/youtube_tokens.json
+          # Write YouTube OAuth Tokens from Secret if present
+          if [ -n "${{ secrets.YOUTUBE_TOKENS_JSON }}" ]; then
+            echo '${{ secrets.YOUTUBE_TOKENS_JSON }}' > data/youtube_tokens.json
+            chmod 600 data/youtube_tokens.json
+          fi
 
       - name: Execute Long Video Automation Script
         run: npm run generate:long

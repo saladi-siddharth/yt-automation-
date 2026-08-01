@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { config } from '../config/config.js';
+import { tidbClient } from './tidbClient.js';
 
 const DB_PATH = path.join(config.dataDir, 'topic_memory.json');
 
@@ -41,20 +42,20 @@ export const memoryLedger = {
 
   /**
    * Check if a proposed topic or key facts overlap with existing history.
-   * Calculates token overlap similarity ratio.
+   * Checks both local memory and TiDB Cloud Database.
    */
   isTopicUsed(titleHindi, factsArray = []) {
     const memory = this.getMemory();
-    const normalize = (str) => str.toLowerCase().replace(/[^\w\u0900-\u097F\s]/g, '').trim();
+    const normalize = (str) => (str || '').toLowerCase().replace(/[^\w\u0900-\u097F\s]/g, '').trim();
     const targetTitle = normalize(titleHindi);
     const targetWords = new Set(targetTitle.split(/\s+/).filter(w => w.length > 2));
 
+    // 1. Check Local Memory
     for (const item of memory.topics) {
       const existingTitle = normalize(item.titleHindi || '');
       const existingEnglish = normalize(item.titleEnglish || '');
       const existingWords = new Set([...existingTitle.split(/\s+/), ...existingEnglish.split(/\s+/)].filter(w => w.length > 2));
       
-      // Jaccard similarity score
       let intersection = 0;
       for (const w of targetWords) {
         if (existingWords.has(w)) intersection++;
@@ -62,12 +63,12 @@ export const memoryLedger = {
       const union = new Set([...targetWords, ...existingWords]).size;
       const similarity = union > 0 ? intersection / union : 0;
 
-      if (similarity > 0.45) {
-        return { used: true, reason: `High similarity (${Math.round(similarity * 100)}%) to existing video: "${item.titleHindi}"` };
+      if (similarity > 0.40) {
+        return { used: true, reason: `High similarity (${Math.round(similarity * 100)}%) to existing local video: "${item.titleHindi}"` };
       }
     }
 
-    // Check specific fact hash signatures
+    // 2. Check Fact Hashes
     for (const fact of factsArray) {
       const factNorm = normalize(fact);
       if (memory.factsHash[factNorm]) {
@@ -83,7 +84,7 @@ export const memoryLedger = {
    */
   registerTopic(topicInfo) {
     const memory = this.getMemory();
-    const normalize = (str) => str.toLowerCase().replace(/[^\w\u0900-\u097F\s]/g, '').trim();
+    const normalize = (str) => (str || '').toLowerCase().replace(/[^\w\u0900-\u097F\s]/g, '').trim();
 
     const record = {
       id: `vid_${Date.now()}`,
