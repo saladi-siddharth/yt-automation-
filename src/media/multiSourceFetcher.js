@@ -214,22 +214,34 @@ export const multiSourceFetcher = {
         }
       }
 
-      // Perform stream download into targetClipPath
+      // Perform stream download into targetClipPath with guaranteed directory existence & error handling
       if (downloadUrl) {
         try {
-          const writer = fs.createWriteStream(targetClipPath);
-          const videoStream = await axios({
+          if (!fs.existsSync(mediaDir)) {
+            fs.mkdirSync(mediaDir, { recursive: true });
+          }
+
+          const response = await axios({
             url: downloadUrl,
             method: 'GET',
             responseType: 'stream',
             timeout: 15000
           });
-          videoStream.data.pipe(writer);
+
+          const writer = fs.createWriteStream(targetClipPath);
+          response.data.pipe(writer);
+
           await new Promise((resolve, reject) => {
             writer.on('finish', resolve);
-            writer.on('error', reject);
+            writer.on('error', (e) => {
+              writer.close();
+              reject(e);
+            });
           });
-          broadcastLog(`[AssetCollector ${i + 1}/${scenes.length}] Downloaded media -> ${clipFileName} (${fs.statSync(targetClipPath).size} bytes)`);
+
+          if (fs.existsSync(targetClipPath) && fs.statSync(targetClipPath).size > 100) {
+            broadcastLog(`[AssetCollector ${i + 1}/${scenes.length}] Downloaded media -> ${clipFileName} (${fs.statSync(targetClipPath).size} bytes)`);
+          }
         } catch (err) {
           console.warn(`[AssetCollector Download Warning] Clip ${i + 1}: ${err.message}`);
         }
