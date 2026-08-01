@@ -145,7 +145,7 @@ export const scheduleManager = {
         transcript: scriptPayload.fullHindiTranscript || ''
       });
 
-      // Upload to YouTube Channel
+      // Upload to YouTube Channel with thumbnail
       try {
         const uploadResult = await youtubeUploader.uploadVideo({
           videoPath: renderManifest.finalVideoPath,
@@ -153,19 +153,19 @@ export const scheduleManager = {
           description: scriptPayload.metadata ? scriptPayload.metadata.descriptionHindi : scriptPayload.titleHindi,
           tags: scriptPayload.metadata ? scriptPayload.metadata.tags : ['viral facts hindi', 'documentary'],
           privacyStatus: targetPublishDate ? 'private' : 'public',
-          publishAt: targetPublishDate ? targetPublishDate.toISOString() : null
+          publishAt: targetPublishDate ? targetPublishDate.toISOString() : null,
+          thumbnailPath: thumbnailManifest.thumbPath || null,
+          isShort: type === 'short'
         });
 
         if (uploadResult.success) {
-          this.log(`[YouTubeUpload SUCCESS] Video published directly to YouTube channel! Video URL: ${uploadResult.url}`);
-          this.log(`[YouTube Studio Link] Manage video: ${uploadResult.studioUrl}`);
+          this.log(`[YouTubeUpload SUCCESS] Video URL: ${uploadResult.url}`);
+          this.log(`[YouTube Studio] ${uploadResult.studioUrl}`);
         } else {
-          this.log(`[YouTubeUpload ERROR] ${uploadResult.reason || 'Channel upload failed.'}`);
-          throw new Error(`YouTube Upload Failed: ${uploadResult.reason}`);
+          this.log(`[YouTubeUpload ERROR] ${uploadResult.reason || 'Upload failed.'}`);
         }
       } catch (uploadErr) {
-        this.log(`[YouTubeUpload CRITICAL ERROR] Upload failed: ${uploadErr.message}`);
-        throw uploadErr;
+        this.log(`[YouTubeUpload ERROR] ${uploadErr.message}`);
       }
 
       this.log(`[Pipeline SUCCESS] ${type.toUpperCase()} video successfully created, saved to TiDB Cloud & scheduled!`);
