@@ -136,6 +136,46 @@ export const youtubeUploader = {
       console.error(`[YouTubeUploader ERROR] Upload failed: ${err.message}`);
       return { success: false, reason: err.message };
     }
+  },
+
+  /**
+   * Schedule an existing video for specific future publication timestamp
+   */
+  async updateVideoSchedule({ videoId, publishAtISO }) {
+    const youtube = this.getAuthenticatedClient();
+    if (!youtube) throw new Error('YouTube client authentication failed.');
+
+    const getRes = await youtube.videos.list({
+      part: ['snippet', 'status'],
+      id: [videoId]
+    });
+
+    if (!getRes.data.items || getRes.data.items.length === 0) {
+      throw new Error(`Video ID ${videoId} not found on YouTube.`);
+    }
+
+    const item = getRes.data.items[0];
+    const snippet = item.snippet;
+
+    const res = await youtube.videos.update({
+      part: ['snippet', 'status'],
+      requestBody: {
+        id: videoId,
+        snippet: {
+          title: snippet.title,
+          description: snippet.description,
+          categoryId: snippet.categoryId || '27'
+        },
+        status: {
+          privacyStatus: 'private',
+          publishAt: publishAtISO,
+          selfDeclaredMadeForKids: false
+        }
+      }
+    });
+
+    console.log(`[YouTubeSchedule SUCCESS] Scheduled video ${videoId} for automatic public release at ${publishAtISO}!`);
+    return res.data;
   }
 };
 

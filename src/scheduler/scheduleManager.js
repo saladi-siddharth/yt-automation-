@@ -152,7 +152,7 @@ export const scheduleManager = {
           title: scriptPayload.metadata ? scriptPayload.metadata.titleHindi : scriptPayload.titleHindi,
           description: scriptPayload.metadata ? scriptPayload.metadata.descriptionHindi : scriptPayload.titleHindi,
           tags: scriptPayload.metadata ? scriptPayload.metadata.tags : ['viral facts hindi', 'documentary'],
-          privacyStatus: 'public', // Direct Public Upload
+          privacyStatus: targetPublishDate ? 'private' : 'public',
           publishAt: targetPublishDate ? targetPublishDate.toISOString() : null
         });
 
