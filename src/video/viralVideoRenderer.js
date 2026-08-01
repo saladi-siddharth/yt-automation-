@@ -114,18 +114,17 @@ export const viralVideoRenderer = {
       // Build drawtext filters for each segment caption
       let textFilters = [];
 
-      // Subtle translucent top gradient bar for clean title reading (No heavy bottom black boxes!)
-      textFilters.push(`drawbox=x=0:y=0:w=${res.w}:h=90:color=black@0.35:t=fill`);
+      // Subtle translucent top gradient bar for clean title reading (No neon progress track!)
+      textFilters.push(`drawbox=x=0:y=0:w=${res.w}:h=90:color=black@0.30:t=fill`);
 
-      // Progress bar at bottom edge (animated cyan neon progress track)
-      textFilters.push(`drawbox=x=0:y=${res.h - 6}:w=${res.w}:h=6:color=white@0.2:t=fill`);
-      textFilters.push(`drawbox=x=0:y=${res.h - 6}:w='(t/${totalDuration})*${res.w}':h=6:color=0x00E5FF@0.95:t=fill`);
-
-      // 🎬 Title Intro Banner (Appears only during the first 0-4 seconds)
+      // 🎬 Ultra-Professional Gold Accent Title Intro (Appears during first 0-4s)
       const cleanTitle = (scriptPayload.titleHindi || scriptPayload.titleEnglish || 'Viral Facts').replace(/'/g, '').replace(/"/g, '').replace(/:/g, ' ').substring(0, 45);
       if (cleanTitle) {
         textFilters.push(
-          `drawtext=fontfile='${fontPath}':text='✨ ${cleanTitle} ✨':fontcolor=white:fontsize=34:box=1:boxcolor=black@0.55:boxborderw=10:x=(w-text_w)/2:y=25:enable='between(t,0,4)':alpha='if(gt(t,3),1-(t-3)/1,1)'`
+          `drawbox=x=(w-600)/2:y=20:w=600:h=3:color=0xFFD700@0.9:t=fill:enable='between(t,0,4)'`
+        );
+        textFilters.push(
+          `drawtext=fontfile='${fontPath}':text='${cleanTitle}':fontcolor=white:fontsize=34:box=1:boxcolor=black@0.60:boxborderw=10:x=(w-text_w)/2:y=28:enable='between(t,0,4)':alpha='if(gt(t,3.2),1-(t-3.2)/0.8,1)'`
         );
       }
 
@@ -159,12 +158,12 @@ export const viralVideoRenderer = {
       const filterScriptPath = path.join(videoOutputDir, 'filter_script.txt');
       fs.writeFileSync(filterScriptPath, vfChain, 'utf-8');
 
-      // Final composite: raw_concat + audio + text overlays + Cinematic Background Drone with Ducking
+      // Final composite: raw_concat + audio + text overlays + Mastered Studio Audio Pipeline
       let finalCmd = '';
       if (hasAudio) {
-        // [0:v] raw video, [1:a] narration, [2:a] generated ambient drone (432Hz healing/suspense frequency)
-        // Mix the low-frequency drone behind the narrator without complex sidechain to ensure 100% FFmpeg compatibility
-        const duckingFilter = `[2:a]volume=0.15[bg_vol];[1:a]volume=1.5[nar_boost];[bg_vol][nar_boost]amix=inputs=2:duration=first:dropout_transition=2[aout]`;
+        // [0:v] raw video, [1:a] narration, [2:a] ambient drone
+        // Master narration with highpass/lowpass/compressor for studio voice clarity
+        const duckingFilter = `[2:a]volume=0.12[bg_vol];[1:a]highpass=f=75,lowpass=f=11000,acompressor=threshold=-16dB:ratio=3:attack=5:release=50,volume=1.4[nar_boost];[bg_vol][nar_boost]amix=inputs=2:duration=first:dropout_transition=2[aout]`;
         
         finalCmd = `"${ffmpegPath}" -y -i "${rawConcatPath.replace(/\\/g, '/')}" -i "${audioManifest.audioPath.replace(/\\/g, '/')}" -f lavfi -i "aevalsrc=0.1*sin(2*PI*108*t)+0.05*sin(2*PI*110*t):s=44100" -filter_complex_script "${filterScriptPath.replace(/\\/g, '/')}" -filter_complex "${duckingFilter}" -map 0:v -map "[aout]" -c:v libx264 -preset ultrafast -c:a aac -b:a 192k -shortest "${finalVideoPath.replace(/\\/g, '/')}"`;
       } else {
