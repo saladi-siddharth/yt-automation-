@@ -77,7 +77,8 @@ export const viralVideoRenderer = {
           'fps=30'
         ].join(',');
 
-        const clipCmd = `"${ffmpegPath}" -y -i "${clipBaseName}" -vf "${vf}" -t ${clipDuration} -c:v libx264 -preset superfast -crf 22 -an "${processedName}"`;
+        // UPGRADE: Added -stream_loop -1 before -i to automatically loop clips that are shorter than clipDuration
+        const clipCmd = `"${ffmpegPath}" -y -stream_loop -1 -i "${clipBaseName}" -vf "${vf}" -t ${clipDuration} -c:v libx264 -preset superfast -crf 22 -an "${processedName}"`;
 
         try {
           await execPromise(clipCmd, { cwd: path.join(videoOutputDir, 'clips'), timeout: 60000 });
@@ -106,7 +107,8 @@ export const viralVideoRenderer = {
       // ═══════════════════════════════════════════════════════════════
       // PHASE 3: Build text overlay filter + audio in SINGLE filter_complex
       // ═══════════════════════════════════════════════════════════════
-      const fontPath = fs.existsSync('C:/Windows/Fonts/arialbd.ttf') ? 'C\\\\:/Windows/Fonts/arialbd.ttf' : 'C\\\\:/Windows/Fonts/arial.ttf';
+      // UPGRADE: Use bundled Poppins-Bold font to support full Hindi Devanagari rendering without black boxes
+      const fontPath = '../../data/fonts/Poppins-Bold.ttf';
 
       let textFilters = [];
 

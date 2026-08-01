@@ -23,9 +23,8 @@ export const thumbnailEngine = {
     const width = isShort ? 1080 : 1280;
     const height = isShort ? 1920 : 720;
 
-    const fontPath = fs.existsSync('C:/Windows/Fonts/arialbd.ttf') 
-      ? 'C\\:/Windows/Fonts/arialbd.ttf' 
-      : 'C\\:/Windows/Fonts/arial.ttf';
+    // UPGRADE: Use bundled Poppins-Bold font to support full Hindi Devanagari rendering without black boxes
+    const fontPath = 'data/fonts/Poppins-Bold.ttf';
 
     const rawTitle = scriptPayload.titleHindi || scriptPayload.titleEnglish || "Viral Mystery";
     const cleanTitle = rawTitle.replace(/'/g, '').replace(/"/g, '').replace(/:/g, ' ').substring(0, 42);
