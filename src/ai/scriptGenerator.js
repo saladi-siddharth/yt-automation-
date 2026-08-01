@@ -358,50 +358,6 @@ export const scriptGenerator = {
         thumbnailPrompt: "Hyper-realistic cinematic space mystery nebula black hole 8k"
       }
     };
-        timeSec: 585,
-        textHindi: `कमेंट करके हमें ज़रूर बताएं कि इन 10 रहस्यों में से किस बात ने आपको सबसे ज़्यादा चौंकाया और आप अगले वीडियो में किस विषय पर डॉक्यूमेंट्री देखना चाहते हैं। आपके विचार हमारे लिए बेहद मूल्यवान हैं और हम हर कमेंट को ध्यान से पढ़ते हैं!`,
-        sfx: "whoosh",
-        stockQuery: `${stockQueryBase} community feedback discussion concept cinematic 4K`,
-        keywordHighlight: "कमेंट में अपनी राय दें"
-      },
-      {
-        id: 14,
-        timeSec: 630,
-        textHindi: `ऐसी ही और भी रोमांचक, रहस्यमयी और ज्ञानवर्धक वीडियोस देखने के लिए हमारे चैनल को सब्सक्राइब करके बेल आइकन को All पर सेट करना बिल्कुल न भूलें, ताकि हर नई डॉक्यूमेंट्री की नोटिफिकेशन सबसे पहले आप तक पहुँचे!`,
-        sfx: "cinematic_hit",
-        stockQuery: `youtube subscribe button animation cinematic background 4K`,
-        keywordHighlight: "चैनल सब्सक्राइब करें"
-      },
-      {
-        id: 15,
-        timeSec: 675,
-        textHindi: `फिर मिलेंगे एक और नई रोमांचक वीडियो के साथ, तब तक के लिए अपना और अपने परिवार का ख्याल रखें। धन्यवाद और जय हिंद!`,
-        sfx: "applause",
-        stockQuery: `peaceful nature landscape cinematic outro sunset 4K`,
-        keywordHighlight: "जय हिंद और धन्यवाद"
-      }
-    ];
-
-    const fullText = longSegments.map(s => s.textHindi).join(' ');
-
-    console.log(`[ScriptGenerator] Dynamically synthesized 15-segment 1,600+ word Hindi script for Long Video: "${cleanTopic}"`);
-
-    return {
-      type: 'long',
-      language: 'hindi',
-      titleHindi,
-      titleEnglish,
-      targetDurationSec: 675,
-      viralScore: topicCandidate.viralScore || 99,
-      segments: longSegments,
-      fullHindiTranscript: fullText,
-      metadata: {
-        titleHindi,
-        descriptionHindi: `${rawTopic} पर आधारित यह 12 मिनट की विशेष हिंदी डॉक्यूमेंट्री आपको ब्रह्मांड, महासागर और प्रकृति के सबसे ख़तरनाक रहस्यों से रूबरू कराएगी! #facts #hindi #documentary #science #mysteries`,
-        tags: ["viral facts hindi", "documentary hindi", "amazing facts hindi", "unexplained mysteries hindi", "science facts hindi"],
-        thumbnailPrompt: `HD split-screen showing glowing black hole and deep ocean monster with high contrast bold yellow Hindi title '${cleanTopic}'`
-      }
-    };
   }
 };
 
