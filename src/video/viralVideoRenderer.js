@@ -154,6 +154,19 @@ export const viralVideoRenderer = {
         }
       });
 
+      // 🔔 🔴 ANIMATED END-SCREEN CALL-TO-ACTION (LIKE & SUBSCRIBE)
+      const ctaStart = Math.max(0, totalDuration - 6.0);
+      const ctaY = isShort ? (res.h / 2) - 60 : (res.h / 2) - 50;
+      const ctaSubY = ctaY + (isShort ? 65 : 55);
+      const ctaFontSize = isShort ? 42 : 38;
+
+      textFilters.push(
+        `drawtext=fontfile='${fontPath}':text='👍 LIKE  &  🔔 SUBSCRIBE':fontcolor=white:fontsize=${ctaFontSize}:box=1:boxcolor=0xE50914@0.92:boxborderw=14:borderw=3:bordercolor=0xFFD700:x=(w-text_w)/2:y=${ctaY}:enable='between(t,${ctaStart},${totalDuration})':alpha='if(lt(t-${ctaStart},0.4),(t-${ctaStart})*2.5,if(gt(t,${totalDuration - 0.5}),(${totalDuration}-t)*2,1))'`
+      );
+      textFilters.push(
+        `drawtext=fontfile='${fontPath}':text='लाल बटन दबाकर अभी सब्सक्राइब करें! 🔴':fontcolor=0xFFE600:fontsize=${ctaFontSize - 10}:box=1:boxcolor=black@0.75:boxborderw=8:borderw=2:bordercolor=black:x=(w-text_w)/2:y=${ctaSubY}:enable='between(t,${ctaStart + 0.3},${totalDuration})':alpha='if(lt(t-${ctaStart + 0.3},0.4),(t-${ctaStart + 0.3})*2.5,if(gt(t,${totalDuration - 0.5}),(${totalDuration}-t)*2,1))'`
+      );
+
       const vfChain = textFilters.join(',');
       const filterScriptPath = path.join(videoOutputDir, 'filter_script.txt');
       fs.writeFileSync(filterScriptPath, vfChain, 'utf-8');
