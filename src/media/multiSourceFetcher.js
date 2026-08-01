@@ -8,16 +8,16 @@ export const multiSourceFetcher = {
    * Clean search queries: extract primary subject, remove noise/fillers for 100% search accuracy
    */
   cleanSearchQuery(rawQuery) {
-    if (!rawQuery) return 'space ocean nature';
+    if (!rawQuery) return 'space galaxy blackhole';
     let q = String(rawQuery)
       .toLowerCase()
-      .replace(/\b(4k|hd|cinematic|epic|documentary|intro|high|speed|action|mysterious|dramatic|extreme|macro|detail|colorful|climax|outro|sunset|background|concept|video|scene|inside|realm|anomalies|special|episode|ep|part|top|secrets|mystery|truth|unsolved|hidden|terrifying|shocking)\b/g, '')
+      .replace(/\b(4k|hd|cinematic|epic|documentary|intro|high|speed|action|mysterious|dramatic|extreme|macro|detail|colorful|climax|outro|sunset|background|concept|video|scene|inside|realm|anomalies|special|episode|ep|part|top|secrets|mystery|truth|unsolved|hidden|terrifying|shocking|most|best|world|great)\b/g, '')
       .replace(/[^\w\s]/gi, ' ')
       .replace(/\s+/g, ' ')
       .trim();
 
     const words = q.split(' ').filter(w => w.length > 2);
-    if (words.length === 0) return 'space ocean nature';
+    if (words.length === 0) return 'space galaxy blackhole';
     return words.slice(0, 3).join(' ');
   },
 
