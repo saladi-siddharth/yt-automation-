@@ -81,7 +81,9 @@ export const viralVideoRenderer = {
         // Vignette for cinematic depth
         const vignette = `vignette=PI/4`;
 
-        const clipCmd = `"${ffmpegPath}" -y -i "${clipBaseName}" -vf "scale=${res.w}:${res.h}:force_original_aspect_ratio=increase,crop=${res.w}:${res.h},setsar=1,${colorGrade},${vignette},fps=30" -t ${clipDuration} -c:v libx264 -preset ultrafast -an "${processedName}"`;
+        // Apply 5% zoom-crop to slice off any pre-existing letterboxing inside stock clips, then scale to 1920x1080 / 1080x1920
+        const zoomCrop = `crop=w=iw*0.95:h=ih*0.95:x=iw*0.025:y=ih*0.025`;
+        const clipCmd = `"${ffmpegPath}" -y -i "${clipBaseName}" -vf "${zoomCrop},scale=${res.w}:${res.h}:force_original_aspect_ratio=increase,crop=${res.w}:${res.h},setsar=1,${colorGrade},${vignette},fps=30" -t ${clipDuration} -c:v libx264 -preset ultrafast -an "${processedName}"`;
 
         try {
           await execPromise(clipCmd, { cwd: path.join(videoOutputDir, 'clips') });
@@ -148,17 +150,17 @@ export const viralVideoRenderer = {
         }
       });
 
-      // 🔔 🔴 ANIMATED END-SCREEN CALL-TO-ACTION (LIKE & SUBSCRIBE)
+      // 🔔 🔴 ANIMATED END-SCREEN CALL-TO-ACTION (LIKE & SUBSCRIBE) — ZERO BLACK BOXES!
       const ctaStart = Math.max(0, totalDuration - 6.0);
       const ctaY = isShort ? (res.h / 2) - 60 : (res.h / 2) - 50;
       const ctaSubY = ctaY + (isShort ? 65 : 55);
       const ctaFontSize = isShort ? 42 : 38;
 
       textFilters.push(
-        `drawtext=fontfile='${fontPath}':text='👍 LIKE  &  🔔 SUBSCRIBE':fontcolor=white:fontsize=${ctaFontSize}:box=1:boxcolor=0xE50914@0.92:boxborderw=14:borderw=3:bordercolor=0xFFD700:x=(w-text_w)/2:y=${ctaY}:enable='between(t,${ctaStart},${totalDuration})':alpha='if(lt(t-${ctaStart},0.4),(t-${ctaStart})*2.5,if(gt(t,${totalDuration - 0.5}),(${totalDuration}-t)*2,1))'`
+        `drawtext=fontfile='${fontPath}':text='👍 LIKE  &  🔔 SUBSCRIBE':fontcolor=0xFFD700:fontsize=${ctaFontSize}:borderw=3:bordercolor=black:shadowx=2:shadowy=2:shadowcolor=black@0.9:x=(w-text_w)/2:y=${ctaY}:enable='between(t,${ctaStart},${totalDuration})':alpha='if(lt(t-${ctaStart},0.4),(t-${ctaStart})*2.5,if(gt(t,${totalDuration - 0.5}),(${totalDuration}-t)*2,1))'`
       );
       textFilters.push(
-        `drawtext=fontfile='${fontPath}':text='लाल बटन दबाकर अभी सब्सक्राइब करें! 🔴':fontcolor=0xFFE600:fontsize=${ctaFontSize - 10}:box=1:boxcolor=black@0.75:boxborderw=8:borderw=2:bordercolor=black:x=(w-text_w)/2:y=${ctaSubY}:enable='between(t,${ctaStart + 0.3},${totalDuration})':alpha='if(lt(t-${ctaStart + 0.3},0.4),(t-${ctaStart + 0.3})*2.5,if(gt(t,${totalDuration - 0.5}),(${totalDuration}-t)*2,1))'`
+        `drawtext=fontfile='${fontPath}':text='लाल बटन दबाकर अभी सब्सक्राइब करें! 🔴':fontcolor=white:fontsize=${ctaFontSize - 10}:borderw=3:bordercolor=black:shadowx=2:shadowy=2:shadowcolor=black@0.9:x=(w-text_w)/2:y=${ctaSubY}:enable='between(t,${ctaStart + 0.3},${totalDuration})':alpha='if(lt(t-${ctaStart + 0.3},0.4),(t-${ctaStart + 0.3})*2.5,if(gt(t,${totalDuration - 0.5}),(${totalDuration}-t)*2,1))'`
       );
 
       const vfChain = textFilters.join(',');

@@ -35,6 +35,7 @@ export const multiSourceFetcher = {
     broadcastLog(`[MultiSourceEngine] Searching 25+ Media Importers for exact scene matching (${scenes.length} cut segments)...`);
 
     const fetchedClips = [];
+    const usedUrls = new Set();
 
     for (let i = 0; i < scenes.length; i++) {
       const scene = scenes[i];
@@ -51,13 +52,12 @@ export const multiSourceFetcher = {
         cleanQ,
         `${cleanQ} 4K`,
         subjectWord,
-        `${subjectWord} nature`,
-        'nature wildlife space'
+        `${subjectWord} nature`
       ].filter(Boolean);
 
       let downloadUrl = null;
 
-      // 🔍 25+ Multi-Provider Search Cascade
+      // 🔍 25+ Multi-Provider Search Cascade with Zero-Repetition Deduplication
       for (const q of candidateQueries) {
         if (downloadUrl) break;
 
@@ -66,14 +66,22 @@ export const multiSourceFetcher = {
           try {
             const resp = await axios.get(`https://api.pexels.com/videos/search`, {
               headers: { Authorization: config.pexelsApiKey },
-              params: { query: q, per_page: 12, orientation: orientation === 'portrait' ? 'portrait' : 'landscape' },
+              params: { query: q, per_page: 20, orientation: orientation === 'portrait' ? 'portrait' : 'landscape' },
               timeout: 7000
             });
             if (resp.data.videos?.length > 0) {
-              const chosen = resp.data.videos[i % resp.data.videos.length] || resp.data.videos[0];
-              const files = chosen.video_files || [];
+              const freshVid = resp.data.videos.find(v => {
+                const files = v.video_files || [];
+                const hdFile = files.find(f => f.quality === 'hd') || files[0];
+                return hdFile?.link && !usedUrls.has(hdFile.link);
+              }) || resp.data.videos[0];
+              const files = freshVid.video_files || [];
               const hdFile = files.find(f => f.quality === 'hd') || files[0];
-              if (hdFile?.link) { downloadUrl = hdFile.link; break; }
+              if (hdFile?.link && !usedUrls.has(hdFile.link)) {
+                downloadUrl = hdFile.link;
+                usedUrls.add(downloadUrl);
+                break;
+              }
             }
           } catch (e) { /* silent fallback */ }
         }
@@ -83,13 +91,18 @@ export const multiSourceFetcher = {
           try {
             const resp = await axios.get(`https://api.pexels.com/v1/search`, {
               headers: { Authorization: config.pexelsApiKey },
-              params: { query: q, per_page: 10, orientation: orientation === 'portrait' ? 'portrait' : 'landscape' },
+              params: { query: q, per_page: 20, orientation: orientation === 'portrait' ? 'portrait' : 'landscape' },
               timeout: 6000
             });
             if (resp.data.photos?.length > 0) {
-              const photo = resp.data.photos[i % resp.data.photos.length] || resp.data.photos[0];
-              if (photo.src?.large2x || photo.src?.large) {
-                downloadUrl = photo.src.large2x || photo.src.large;
+              const freshPhoto = resp.data.photos.find(p => {
+                const u = p.src?.large2x || p.src?.large;
+                return u && !usedUrls.has(u);
+              }) || resp.data.photos[0];
+              const u = freshPhoto.src?.large2x || freshPhoto.src?.large;
+              if (u && !usedUrls.has(u)) {
+                downloadUrl = u;
+                usedUrls.add(downloadUrl);
                 break;
               }
             }
@@ -100,12 +113,16 @@ export const multiSourceFetcher = {
         if (!downloadUrl && process.env.PIXABAY_API_KEY) {
           try {
             const resp = await axios.get(`https://pixabay.com/api/videos/`, {
-              params: { key: process.env.PIXABAY_API_KEY, q: q, per_page: 8 },
+              params: { key: process.env.PIXABAY_API_KEY, q: q, per_page: 15 },
               timeout: 7000
             });
             if (resp.data.hits?.length > 0) {
-              const hit = resp.data.hits[i % resp.data.hits.length] || resp.data.hits[0];
-              if (hit.videos?.medium?.url) { downloadUrl = hit.videos.medium.url; break; }
+              const freshHit = resp.data.hits.find(h => h.videos?.medium?.url && !usedUrls.has(h.videos.medium.url)) || resp.data.hits[0];
+              if (freshHit.videos?.medium?.url && !usedUrls.has(freshHit.videos.medium.url)) {
+                downloadUrl = freshHit.videos.medium.url;
+                usedUrls.add(downloadUrl);
+                break;
+              }
             }
           } catch (e3) { /* silent fallback */ }
         }
