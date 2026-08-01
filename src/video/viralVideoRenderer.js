@@ -59,17 +59,24 @@ export const viralVideoRenderer = {
         const processedName = `pro_${clipBaseName}`;
         const processedPath = path.join(videoOutputDir, 'clips', processedName);
 
-        // Ken Burns zoom direction alternates: zoom-in, zoom-out, pan-right, pan-left
+        // 🎬 6-Way Dynamic Ken Burns Motion Engine (No static clips!)
         const zoomPatterns = [
-          `zoompan=z='min(zoom+0.0015,1.25)':x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':d=${clipDuration * 30}:s=${res.w}x${res.h}:fps=30`,
-          `zoompan=z='if(lte(zoom,1.0),1.25,max(zoom-0.0015,1.0))':x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':d=${clipDuration * 30}:s=${res.w}x${res.h}:fps=30`,
-          `zoompan=z='1.15':x='if(lte(on,1),0,min(x+2,iw-iw/zoom))':y='ih/2-(ih/zoom/2)':d=${clipDuration * 30}:s=${res.w}x${res.h}:fps=30`,
-          `zoompan=z='1.15':x='iw/2-(iw/zoom/2)':y='if(lte(on,1),0,min(y+1,ih-ih/zoom))':d=${clipDuration * 30}:s=${res.w}x${res.h}:fps=30`
+          `zoompan=z='min(zoom+0.0018,1.30)':x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':d=${clipDuration * 30}:s=${res.w}x${res.h}:fps=30`,
+          `zoompan=z='if(lte(zoom,1.0),1.30,max(zoom-0.0018,1.0))':x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':d=${clipDuration * 30}:s=${res.w}x${res.h}:fps=30`,
+          `zoompan=z='1.18':x='if(lte(on,1),0,min(x+2.5,iw-iw/zoom))':y='ih/2-(ih/zoom/2)':d=${clipDuration * 30}:s=${res.w}x${res.h}:fps=30`,
+          `zoompan=z='1.18':x='iw/2-(iw/zoom/2)':y='if(lte(on,1),0,min(y+1.5,ih-ih/zoom))':d=${clipDuration * 30}:s=${res.w}x${res.h}:fps=30`,
+          `zoompan=z='min(zoom+0.0025,1.22)':x='if(lte(on,1),0,min(x+1.5,iw-iw/zoom))':y='if(lte(on,1),0,min(y+1.5,ih-ih/zoom))':d=${clipDuration * 30}:s=${res.w}x${res.h}:fps=30`,
+          `zoompan=z='if(lte(zoom,1.0),1.22,max(zoom-0.0025,1.0))':x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':d=${clipDuration * 30}:s=${res.w}x${res.h}:fps=30`
         ];
         const zoomFilter = zoomPatterns[i % zoomPatterns.length];
 
-        // Color grade: documentary contrast + saturation + slight warm tint
-        const colorGrade = `eq=contrast=1.20:brightness=0.03:saturation=1.40`;
+        // 🎨 Dynamic Cinematic Color Grade Matrix
+        const colorGrades = [
+          `eq=contrast=1.22:brightness=0.03:saturation=1.45`, // Warm Golden Documentary
+          `eq=contrast=1.26:brightness=0.01:saturation=1.35`, // Teal & Orange Cinematic
+          `eq=contrast=1.30:brightness=-0.01:saturation=1.40` // High-Contrast Mystery
+        ];
+        const colorGrade = colorGrades[i % colorGrades.length];
 
         // Vignette for cinematic depth
         const vignette = `vignette=PI/4`;
@@ -122,7 +129,7 @@ export const viralVideoRenderer = {
         );
       }
 
-      // Animated captions for each segment (Positioned in YouTube Shorts Safe Zone, clean border, NO watermark!)
+      // Animated captions for each segment (Positioned in YouTube Safe Zone, clean border, NO watermark!)
       const subY = isShort ? res.h - 320 : res.h - 150;
       const subFontSize = isShort ? 36 : 32;
 
@@ -130,11 +137,20 @@ export const viralVideoRenderer = {
         const startSec = idx === 0 ? 0 : segments.slice(0, idx).reduce((sum, s) => sum + (s.timeSec || 5), 0);
         const endSec = startSec + (seg.timeSec || 5);
         const captionText = (seg.textHindi || '').replace(/'/g, '').replace(/"/g, '').replace(/:/g, ' ').substring(0, 75);
+        const kwHighlight = (seg.keywordHighlight || '').replace(/'/g, '').replace(/"/g, '').replace(/:/g, ' ').substring(0, 30);
 
         if (captionText) {
           // Clean White Subtitle with subtle dark background box & border outline
           textFilters.push(
             `drawtext=fontfile='${fontPath}':text='${captionText}':fontcolor=white:fontsize=${subFontSize}:box=1:boxcolor=black@0.45:boxborderw=8:borderw=2:bordercolor=black:x=(w-text_w)/2:y=${subY}:enable='between(t,${startSec},${endSec})':alpha='if(lt(t-${startSec},0.2),(t-${startSec})*5,1)'`
+          );
+        }
+
+        // 🌟 Glowing Yellow Keyword Pop Highlight Badge
+        if (kwHighlight) {
+          const kwY = subY - (isShort ? 55 : 45);
+          textFilters.push(
+            `drawtext=fontfile='${fontPath}':text='🔥 ${kwHighlight}':fontcolor=0xFFE600:fontsize=${subFontSize - 4}:box=1:boxcolor=black@0.70:boxborderw=8:borderw=2:bordercolor=black:x=(w-text_w)/2:y=${kwY}:enable='between(t,${startSec + 0.3},${endSec})':alpha='if(lt(t-${startSec + 0.3},0.2),(t-${startSec + 0.3})*5,1)'`
           );
         }
       });
