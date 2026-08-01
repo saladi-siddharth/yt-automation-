@@ -68,7 +68,7 @@ export const scheduleManager = {
   /**
    * Main End-to-End Autonomous Pipeline Execution with Director AI & Storyboard Architect
    */
-  async generateAndPublishVideo(type = 'short', targetPublishDate = null) {
+  async generateAndPublishVideo(type = 'short', targetPublishDate = null, customTopic = null) {
     if (this.isProcessing) {
       this.log(`[Pipeline] A generation job is currently running. Queueing request...`);
       return;
@@ -82,7 +82,19 @@ export const scheduleManager = {
 
       // 1. Topic Scraper & Deduplication Check
       this.log(`Step 1/7: Scraping viral Hindi topic & checking zero-repetition memory...`);
-      const topicCandidate = await viralScraper.findNextViralTopic(type);
+      const topicCandidate = customTopic ? {
+        type,
+        keyword: 'Space Mysteries',
+        category: 'Space',
+        hookStyle: 'Open Loop Pattern Interrupt',
+        titleHindi: customTopic,
+        titleEnglish: customTopic,
+        candidateFacts: [customTopic],
+        viralScore: 99,
+        retentionMultiplier: "4.2x Watch Time",
+        isRawIdea: true
+      } : await viralScraper.findNextViralTopic(type);
+
       this.log(`Selected Topic: "${topicCandidate.titleHindi}" [Viral Score: ${topicCandidate.viralScore}/100]`);
 
       // 2. High-Retention Script Generator
