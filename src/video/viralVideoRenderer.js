@@ -114,23 +114,17 @@ export const viralVideoRenderer = {
       // Build drawtext filters for each segment caption
       let textFilters = [];
 
-      // Subtle translucent top gradient bar for clean title reading (No neon progress track!)
-      textFilters.push(`drawbox=x=0:y=0:w=${res.w}:h=90:color=black@0.30:t=fill`);
-
       // 🎬 Ultra-Professional Gold Accent Title Intro (Appears during first 0-4s)
       const cleanTitle = (scriptPayload.titleHindi || scriptPayload.titleEnglish || 'Viral Facts').replace(/'/g, '').replace(/"/g, '').replace(/:/g, ' ').substring(0, 45);
       if (cleanTitle) {
         textFilters.push(
-          `drawbox=x=(w-600)/2:y=20:w=600:h=3:color=0xFFD700@0.9:t=fill:enable='between(t,0,4)'`
-        );
-        textFilters.push(
-          `drawtext=fontfile='${fontPath}':text='${cleanTitle}':fontcolor=white:fontsize=34:box=1:boxcolor=black@0.60:boxborderw=10:x=(w-text_w)/2:y=28:enable='between(t,0,4)':alpha='if(gt(t,3.2),1-(t-3.2)/0.8,1)'`
+          `drawtext=fontfile='${fontPath}':text='✨ ${cleanTitle} ✨':fontcolor=0xFFD700:fontsize=36:borderw=3:bordercolor=black:shadowx=2:shadowy=2:shadowcolor=black@0.9:x=(w-text_w)/2:y=35:enable='between(t,0,4)':alpha='if(gt(t,3.2),1-(t-3.2)/0.8,1)'`
         );
       }
 
-      // Animated captions for each segment (Positioned in YouTube Safe Zone, clean border, NO watermark!)
-      const subY = isShort ? res.h - 320 : res.h - 150;
-      const subFontSize = isShort ? 36 : 32;
+      // Animated captions for each segment (Clean White Subtitles with Drop-Shadow — ZERO Black Boxes or Lines!)
+      const subY = isShort ? res.h - 300 : res.h - 130;
+      const subFontSize = isShort ? 38 : 34;
 
       segments.forEach((seg, idx) => {
         const startSec = idx === 0 ? 0 : segments.slice(0, idx).reduce((sum, s) => sum + (s.timeSec || 5), 0);
@@ -139,17 +133,17 @@ export const viralVideoRenderer = {
         const kwHighlight = (seg.keywordHighlight || '').replace(/'/g, '').replace(/"/g, '').replace(/:/g, ' ').substring(0, 30);
 
         if (captionText) {
-          // Clean White Subtitle with subtle dark background box & border outline
+          // Clean Floating White Subtitle with high-contrast text shadow (No dark boxes!)
           textFilters.push(
-            `drawtext=fontfile='${fontPath}':text='${captionText}':fontcolor=white:fontsize=${subFontSize}:box=1:boxcolor=black@0.45:boxborderw=8:borderw=2:bordercolor=black:x=(w-text_w)/2:y=${subY}:enable='between(t,${startSec},${endSec})':alpha='if(lt(t-${startSec},0.2),(t-${startSec})*5,1)'`
+            `drawtext=fontfile='${fontPath}':text='${captionText}':fontcolor=white:fontsize=${subFontSize}:borderw=3:bordercolor=black:shadowx=2:shadowy=2:shadowcolor=black@0.9:x=(w-text_w)/2:y=${subY}:enable='between(t,${startSec},${endSec})':alpha='if(lt(t-${startSec},0.2),(t-${startSec})*5,1)'`
           );
         }
 
-        // 🌟 Glowing Yellow Keyword Pop Highlight Badge
+        // 🌟 Glowing Yellow Keyword Pop Highlight Badge (Clean border outline, NO black background box!)
         if (kwHighlight) {
           const kwY = subY - (isShort ? 55 : 45);
           textFilters.push(
-            `drawtext=fontfile='${fontPath}':text='🔥 ${kwHighlight}':fontcolor=0xFFE600:fontsize=${subFontSize - 4}:box=1:boxcolor=black@0.70:boxborderw=8:borderw=2:bordercolor=black:x=(w-text_w)/2:y=${kwY}:enable='between(t,${startSec + 0.3},${endSec})':alpha='if(lt(t-${startSec + 0.3},0.2),(t-${startSec + 0.3})*5,1)'`
+            `drawtext=fontfile='${fontPath}':text='🔥 ${kwHighlight}':fontcolor=0xFFE600:fontsize=${subFontSize - 2}:borderw=3:bordercolor=black:shadowx=2:shadowy=2:shadowcolor=black@0.9:x=(w-text_w)/2:y=${kwY}:enable='between(t,${startSec + 0.3},${endSec})':alpha='if(lt(t-${startSec + 0.3},0.2),(t-${startSec + 0.3})*5,1)'`
           );
         }
       });
