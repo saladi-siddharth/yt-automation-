@@ -39,7 +39,7 @@ export const thumbnailEngine = {
         const titleY = isShort ? height - 350 : height - 120;
         const titleFontSize = isShort ? 54 : 48;
 
-        const ffmpegCmd = `"${ffmpegPath}" -y -ss 00:00:01 -i "${clip1Path}" -vf "crop=w=iw*0.95:h=ih*0.95:x=iw*0.025:y=ih*0.025,scale=${width}:${height}:force_original_aspect_ratio=increase,crop=${width}:${height},eq=contrast=1.30:saturation=1.40,drawtext=fontfile='${fontPath}':text='${badgeText}':fontcolor=white:fontsize=36:box=1:boxcolor=0xE50914@0.95:boxborderw=12:x=40:y=40,drawtext=fontfile='${fontPath}':text='${cleanTitle}':fontcolor=0xFFD700:fontsize=${titleFontSize}:borderw=4:bordercolor=black:shadowx=3:shadowy=3:shadowcolor=black@0.9:x=(w-text_w)/2:y=${titleY}" -vframes 1 -q:v 2 "${thumbJpgPath}"`;
+        const ffmpegCmd = `"${ffmpegPath}" -y -ss 00:00:01 -i "${clip1Path}" -vf "crop=w=iw*0.95:h=ih*0.95:x=iw*0.025:y=ih*0.025,scale=${width}:${height}:force_original_aspect_ratio=increase,crop=${width}:${height},eq=contrast=1.30:saturation=1.40,drawtext=fontfile='${fontPath}':text='${badgeText}':fontcolor=0xFFE600:fontsize=38:borderw=4:bordercolor=black:shadowx=2:shadowy=2:shadowcolor=black@0.9:x=40:y=40,drawtext=fontfile='${fontPath}':text='${cleanTitle}':fontcolor=0xFFD700:fontsize=${titleFontSize}:borderw=4:bordercolor=black:shadowx=3:shadowy=3:shadowcolor=black@0.9:x=(w-text_w)/2:y=${titleY}" -vframes 1 -q:v 2 "${thumbJpgPath}"`;
         execSync(ffmpegCmd, { stdio: 'ignore' });
 
         if (fs.existsSync(thumbJpgPath)) {

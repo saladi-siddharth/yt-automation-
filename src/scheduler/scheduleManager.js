@@ -40,7 +40,12 @@ export const scheduleManager = {
       
       const job = cron.schedule(cronExpr, () => {
         this.log(`[CronTrigger] Daily Shorts slot #${idx + 1} (${timeStr} IST upload) - Starting early generation!`);
-        this.generateAndPublishVideo('short');
+        
+        const targetUploadDate = new Date();
+        const [targetH, targetM] = timeStr.split(':');
+        targetUploadDate.setHours(parseInt(targetH, 10), parseInt(targetM, 10), 0, 0);
+
+        this.generateAndPublishVideo('short', targetUploadDate);
       });
       this.activeJobs.push({ name: `Shorts_Slot_${idx+1}_UploadAt_${timeStr}`, cronExpr, job });
     });
@@ -49,7 +54,12 @@ export const scheduleManager = {
     const longCronExpr = `0 17 * * *`; // 17:00 IST (1 hour before 18:00 upload)
     const longJob = cron.schedule(longCronExpr, () => {
       this.log(`[CronTrigger] Long Video publishing window (18:00 IST upload) - Starting early generation!`);
-      this.generateAndPublishVideo('long');
+      
+      const targetUploadDate = new Date();
+      const [targetH, targetM] = config.longVideoTime.split(':');
+      targetUploadDate.setHours(parseInt(targetH, 10), parseInt(targetM, 10), 0, 0);
+
+      this.generateAndPublishVideo('long', targetUploadDate);
     });
     this.activeJobs.push({ name: `LongVideo_Daily_UploadAt_18:00`, cronExpr: longCronExpr, job: longJob });
 

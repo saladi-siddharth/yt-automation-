@@ -33,15 +33,15 @@ export const scriptGenerator = {
     const topicText = topicCandidate.titleEnglish || topicCandidate.titleHindi || keyword;
 
     if (config.geminiApiKey && topicCandidate.isRawIdea) {
-      const segmentCount = type === 'short' ? 7 : 15;
-      const lengthRule = type === 'short' ? "a hyper-viral Hindi script for a YouTube SHORT" : "a massive, highly detailed 1500+ word script for a 12-minute YouTube LONG video";
+      const segmentCount = type === 'short' ? 7 : 22;
+      const lengthRule = type === 'short' ? "a hyper-viral Hindi script for a YouTube SHORT" : "a massive, highly detailed 2200+ word script for a 12-minute YouTube LONG video";
       
       const aiPrompt = `Act as an elite Hollywood screenwriter and YouTube master. Generate ${lengthRule} about "${topicText}" (${category}). 
       CRITICAL INSTRUCTIONS:
       1. Use "Open Loops": The first sentence MUST tease a shocking secret or ending that is only revealed in the final segment, forcing 100% watch-time.
       2. Use Psychological Hooks: Evoke curiosity, fear, or greed (e.g., "This one mistake is destroying your X...").
       3. Use SSML Tags: Wrap highly dramatic words in <prosody rate="slow" pitch="-2st">...</prosody> and add <break time="800ms"/> before huge reveals.
-      ${type === 'long' ? '4. EXACT WORD COUNT: Your script MUST be at least 1500 words long in total. Each of the 15 segments MUST have at least 100-120 words of highly detailed narration.' : ''}
+      ${type === 'long' ? '4. EXACT WORD COUNT: Your script MUST be at least 2200 words long in total. Each of the 22 segments MUST have at least 100-120 words of highly detailed narration.' : ''}
       
       You MUST return exactly ${segmentCount} segments.
       Return ONLY a JSON object (no markdown, no extra text) with the following structure:
@@ -50,10 +50,10 @@ export const scriptGenerator = {
         "language": "hindi",
         "titleHindi": "Your hyper-viral hindi title",
         "titleEnglish": "${topicText}",
-        "targetDurationSec": ${type === 'short' ? 55 : 660},
+        "targetDurationSec": ${type === 'short' ? 55 : 770},
         "viralScore": 99,
         "segments": [
-          { "id": 1, "timeSec": ${type === 'short' ? 5 : 45}, "textHindi": "Hindi narration with SSML tags", "stockQuery": "english visual search query", "keywordHighlight": "1-2 hindi words" }
+          { "id": 1, "timeSec": ${type === 'short' ? 5 : 35}, "textHindi": "Hindi narration with SSML tags", "stockQuery": "english visual search query", "keywordHighlight": "1-2 hindi words" }
         ],
         "fullHindiTranscript": "Full combined narration",
         "metadata": {
@@ -176,7 +176,7 @@ export const scriptGenerator = {
     const cleanTopic = rawTopic.replace(/[^\w\s]/gi, '').trim();
     const stockQueryBase = cleanTopic.split(/\s+/).slice(0, 4).join(' ') || 'cinematic nature universe 4K';
 
-    const titleHindi = topicCandidate.titleHindi || `दुनिया के 10 सबसे ख़तरनाक और अनोखे रहस्य 😱 | ${rawTopic} Full Documentary in Hindi`;
+    const titleHindi = topicCandidate.titleHindi || `दुनिया के 15 सबसे ख़तरनाक और अनोखे रहस्य 😱 | ${rawTopic} Full Documentary in Hindi`;
     const titleEnglish = rawTopic;
 
     const longSegments = [
@@ -255,7 +255,7 @@ export const scriptGenerator = {
       {
         id: 10,
         timeSec: 350,
-        textHindi: `नंबर 7 - ब्लैक होल का भयावह सच और वॉर्महोल का द्वार। यदि कोई अंतरिक्ष यात्री किसी अति-विशालकाय ब्लैक होल के इवेंट होराइजन सीमा को पार कर ले, तो उसके साथ क्या होगा? अल्बर्ट आइंस्टीन के सामान्य सापेक्षता सिद्धांत के अनुसार, तीव्र गुरुत्वाकर्षण खिंचाव के कारण उसका शरीर एक पतले धागे की तरह खिंच जाएगा जिसे स्पैगेटीफिकेशन कहा जाता है। इसके केंद्र में समय और स्थान का अस्तित्व पूरी तरह समाप्त हो जाता है!`,
+        textHindi: `नंबर 7 - ब्लैक洞 का भयावह सच और वॉर्महोल का द्वार। यदि कोई अंतरिक्ष यात्री किसी अति-विशालकाय ब्लैक होल के इवेंट होराइजन सीमा को पार कर ले, तो उसके साथ क्या होगा? अल्बर्ट आइंस्टीन के सामान्य सापेक्षता सिद्धांत के अनुसार, गुरुत्वाकर्षण खिंचाव के कारण शरीर पतले धागे की तरह खिंच जाएगा। इसके केंद्र में समय और स्थान का अस्तित्व समाप्त हो जाता है!`,
         sfx: "subtle_glitch",
         stockQuery: "black hole singularity event horizon 4K",
         keywordHighlight: "नंबर 7 - ब्लैक होल की भयावहता"
@@ -271,7 +271,7 @@ export const scriptGenerator = {
       {
         id: 12,
         timeSec: 420,
-        textHindi: `नंबर 5 - टार्डिग्रेड: अंतरिक्ष की शून्य स्थिति में भी अमर रहने वाला जीव। माइक्रोस्कोपिक आकार का यह प्राणी माइनस 272 डिग्री सेल्सियस के जमा देने वाले तापमान से लेकर 150 डिग्री सेल्सियस की उबलती गर्मी में भी जीवित रह सकता है। इतना ही नहीं, यह बिना भोजन और पानी के 30 वर्षों तक सो सकता है और अंतरिक्ष के जानलेवा विकिरण को भी आसानी से सह सकता है!`,
+        textHindi: `नंबर 5 - टार्डिग्रेड: अंतरिक्ष की शून्य स्थिति में भी अमर रहने वाला जीव। माइक्रोस्कोपिक आकार का यह प्राणी माइनस 272 डिग्री सेल्सियस के जमा देने वाले तापमान से लेकर 150 डिग्री सेल्सियस की उबलती गर्मी में भी जीवित रह सकता है। यह बिना भोजन और पानी के 30 वर्षों तक सो सकता है और अंतरिक्ष के जानलेवा विकिरण को भी आसानी से सह सकता है!`,
         sfx: "shock_riser",
         stockQuery: "tardigrade water bear microscopic 4K",
         keywordHighlight: "नंबर 5 - अविश्वसनीय टार्डिग्रेड"
@@ -290,7 +290,7 @@ export const scriptGenerator = {
         textHindi: `नंबर 3 - सौर तूफ़ान और पृथ्वी का सुरक्षा कवच। हमारा सूर्य हर सेकंड करोड़ों टन प्लाज्मा और आवेशित कणों को अंतरिक्ष में फेंकता है। यदि पृथ्वी का चुंबकीय क्षेत्र और वायुमंडल हमें न बचाए, तो एक ही सौर तूफान पृथ्वी के पूरे बिजली ग्रिड, इंटरनेट और उपग्रह संचार को हमेशा के लिए नष्ट कर सकता है!`,
         sfx: "whoosh",
         stockQuery: "sun solar flare plasma storm 4K",
-        keywordHighlight: "नंबर 3 - विनाशकारी सौर तूफान"
+        keywordHighlight: "नंबर 3 - सौर तूफान का खतरा"
       },
       {
         id: 15,
@@ -303,10 +303,10 @@ export const scriptGenerator = {
       {
         id: 16,
         timeSec: 560,
-        textHindi: `और अब समय आ गया है उस नंबर 1 महा-रहस्य का, जिसका वादा हमने वीडियो की शुरुआत में किया था! नंबर 1 - अटलांटिस और खोई हुई द्वारका नगरी का असली सच। समुद्र की गहराइयों में मिली विशाल जलमग्न संरचनाएं और उन्नत स्थापत्य कला यह साबित करती हैं कि इतिहास की किताबों में दर्ज समय से भी हज़ारों साल पहले पृथ्वी पर एक अति-उन्नत मानव सभ्यता मौजूद थी जो एक ही रात में जलप्रलय में समा गई!`,
+        textHindi: `नंबर 1 - अटलांटिस और खोई हुई द्वारका नगरी का असली सच। समुद्र की गहराइयों में मिली जलमग्न संरचनाएं यह साबित करती हैं कि हज़ारों साल पहले पृथ्वी पर एक अति-उन्नत सभ्यता मौजूद थी जो एक ही रात में जलप्रलय में समा गई!`,
         sfx: "cinematic_hit",
         stockQuery: "submerged ancient city atlantis ruins 4K",
-        keywordHighlight: "नंबर 1 - जलमग्न प्राचीन सभ्यता"
+        keywordHighlight: "नंबर 1 - प्राचीन सभ्यता"
       },
       {
         id: 17,
@@ -335,7 +335,23 @@ export const scriptGenerator = {
       {
         id: 20,
         timeSec: 700,
-        textHindi: `दोस्तों, इस अद्भुत डॉक्यूमेंट्री से यह स्पष्ट होता है कि हमारी पृथ्वी और ब्रह्मांड में अभी भी अनगिनत ऐसे रहस्य हैं जिनका सच इंसान की सोच से परे है। यदि आपको प्रकृति और विज्ञान के ये अनोखे तथ्य पसंद आए, तो इस वीडियो को तुरंत लाइक करें और हमारे चैनल को सब्सक्राइब करके बेल आइकन ज़रूर दबाएं! कमेंट में बताएं कि आपको कौन सा नंबर सबसे ज़्यादा हैरान कर देने वाला लगा!`,
+        textHindi: `नंबर 20 - डार्क मैटर और डार्क एनर्जी का अदृश्य जाल। हमारे ब्रह्मांड का 95 प्रतिशत हिस्सा डार्क मैटर और डार्क एनर्जी से बना है, जिसे हम अपनी आंखों या वैज्ञानिक उपकरणों से कभी नहीं देख सकते! यह एक ऐसा अदृश्य रहस्य है जो ब्रह्मांड की सभी आकाशगंगाओं को एक धागे में पिरोए रखता है।`,
+        sfx: "shock_riser",
+        stockQuery: "dark matter deep space gravitational lens 4K",
+        keywordHighlight: "अदृश्य डार्क मैटर"
+      },
+      {
+        id: 21,
+        timeSec: 735,
+        textHindi: `नंबर 21 - मानव प्रजाति का ब्रह्मांडीय भविष्य। क्या इंसानी सभ्यता कभी पृथ्वी से बाहर निकलकर दूसरे सौर मंडलों और आकाशगंगाओं में निवास कर पाएगी? मंगल ग्रह पर इंसानी बस्तियां बसाना तो केवल पहला कदम है, लेकिन आने वाली सदियों में हमारे वंशज दूसरे तारों के सुपर-अर्थ ग्रहों पर जीवन की नई शुरुआत करेंगे!`,
+        sfx: "whoosh",
+        stockQuery: "mars colony space travel human future 4K",
+        keywordHighlight: "ब्रह्मांडीय इंसानी भविष्य"
+      },
+      {
+        id: 22,
+        timeSec: 770,
+        textHindi: `दोस्तों, इस अद्भुत वृत्तचित्र डॉक्यूमेंट्री से यह स्पष्ट होता है कि हमारी पृथ्वी और ब्रह्मांड में अभी भी अनगिनत ऐसे रहस्य हैं जिनका सच इंसान की सोच से परे है। यदि आपको प्रकृति और विज्ञान के ये अनोखे तथ्य पसंद आए, तो इस वीडियो को तुरंत लाइक करें और हमारे चैनल को सब्सक्राइब करके बेल आइकन ज़रूर दबाएं! कमेंट में बताएं कि आपको कौन सा नंबर सबसे ज़्यादा हैरान कर देने वाला लगा!`,
         sfx: "applause",
         stockQuery: "starry night sky milky way galaxy 4K",
         keywordHighlight: "👍 लाइक व 🔔 सब्सक्राइब करें"
@@ -347,17 +363,16 @@ export const scriptGenerator = {
       language: 'hindi',
       titleHindi: `15 सबसे ख़तरनाक महा-रहस्य जो विज्ञान भी नहीं सुलझा पाया 😱🔥 | Special Documentary (Ep. 7)`,
       titleEnglish: titleEnglish,
-      targetDurationSec: 700,
+      targetDurationSec: 770,
       viralScore: 99,
       segments: longSegments,
       fullHindiTranscript: longSegments.map(s => s.textHindi).join(' '),
       metadata: {
         titleHindi: `15 सबसे ख़तरनाक महा-रहस्य जो विज्ञान भी नहीं सुलझा पाया 😱🔥 | Special Documentary (Ep. 7)`,
-        descriptionHindi: `इस 12 मिनट की विशेष डॉक्यूमेंट्री में जानिए पृथ्वी और ब्रह्मांड के 15 सबसे ख़तरनाक और अनसुलझे रहस्य! #documentary #viral #facts #space #mysteries`,
+        descriptionHindi: `इस विशेष डॉक्यूमेंट्री में जानिए पृथ्वी और ब्रह्मांड के 15 सबसे ख़तरनाक और अनसुलझे रहस्य! #documentary #viral #facts #space #mysteries`,
         tags: ['viral facts hindi', 'space mysteries', 'documentary hindi', 'science secrets', 'unexplained mysteries'],
         thumbnailPrompt: "Hyper-realistic cinematic space mystery nebula black hole 8k"
       }
     };
   }
 };
-
