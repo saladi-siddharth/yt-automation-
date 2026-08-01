@@ -477,35 +477,102 @@ function generateMegaShortsTopics() {
 
 export const AI_IDEAS_BANK_SHORTS = generateMegaShortsTopics();
 
-export const AI_IDEAS_BANK_LONGS = [
+const CORE_LONG_TOPICS = [
+  "Top 10 Deadliest & Most Venomous Creatures Living in Deep Oceans",
+  "The 15 Most Shocking Space Mysteries That Science Cannot Explain",
+  "Inside Mariana Trench: What Lives at the Deepest Point on Earth",
+  "The Mysterious Lost City of Dwarka: Ancient Indian Submerged Empire",
+  "10 Unsolved Secrets of Ancient Egyptian Pyramids Revealed",
+  "What Happens Inside a Black Hole If You Fall In?",
+  "Top 10 Apex Predators With the Highest Hunting Success Rate",
+  "The Bermuda Triangle Mystery: What Really Happened to Flight 19",
+  "15 Terrifying Things Hidden Inside the Amazon Rainforest",
+  "The Ancient Harappan Saraswati Civilization: How It Disappeared",
+  "Top 10 Mega Engineering Marvels Built by Human Civilization",
+  "The Dark Psychology of Mind Control: How Cults & Brands Manipulate You",
+  "What Would Happen If an Asteroid Struck Earth Today?",
+  "10 Shocking Mysteries of the Human Brain Science Cannot Decode",
+  "The Rise and Fall of the Roman Empire: 5 Fatal Mistakes",
+  "Top 10 Deadliest Snakes in the World & How Their Venom Works",
+  "The James Webb Telescope Discoveries That Rewrote Astronomy",
+  "Area 51 & Skinwalker Ranch: Top Secret Military Facilities Exposed",
+  "The 10 Most Isolated Places on Earth Where No Humans Live",
+  "How Quantum Computers Will Change the World in the Next 10 Years",
   "The Rise and Tragic Fall of Blockbuster: The $50 Million Mistake.",
   "How Red Bull Sold a 25-Cent Drink for $3 and Built a Sports Empire.",
   "The Dumbest Business Decisions Ever Made: The Story of New Coke.",
   "How LEGO Went from Bankruptcy to the World's Biggest Toy Company.",
   "The Rise and Fall of BlackBerry: How iPhone Killed a Giant.",
   "How IKEA Strategically Brainwashes You into Buying Things You Don't Need.",
-  "The Untold Story of Kodak: How the Inventors of Digital Film Ruined Themselves.",
+  "The Untold Story of Kodak: How Digital Cameras Ruined Themselves.",
   "How Nintendo Survived for 130 Years Before Video Games Even Existed.",
   "The Collapse of WeWork: Inside a $47 Billion Illusion.",
-  "How Costco Makes Millions by Intentionally Losing Money on Rotisserie Chickens.",
-  "The Rise and Fall of Toys R Us: The Real Reason It Disappeared.",
-  "How Amazon Web Services AWS Secretly Funds the Entire Internet.",
-  "The Rise and Fall of MySpace: The Mistake That Handed Internet to Facebook.",
-  "How Netflix Defeated Hollywood and Changed Television Forever.",
-  "The Destruction of Yahoo: How a Tech Giant Turned Down Buying Google.",
-  "The Monopoly Strategy: How Luxottica Secretly Owns Almost Every Sunglasses Brand.",
-  "How Zara Rebuilt the Entire Fashion Industry in Less Than 15 Days.",
-  "The Rise and Fall of Nokia: The Story of the Unkillable Phone Company.",
-  "How Monster Energy Fought Red Bull and Captured a Billion-Dollar Market.",
-  "The Collapse of Enron: The Corporate Scam That Shocked Global Economy.",
-  "How Spotify Conquered Music Industry and Made Piracy Obsolete.",
-  "The Rise and Fall of HTC: The Tragic Disappearance of a Smartphone Pioneer.",
-  "How McDonald's is Secretly a Real Estate Company Not Fast Food Chain.",
-  "The Decline of Sears: How America's Biggest Retailer Destroyed Itself.",
-  "How GoPro Created a Brand Empire and Then Ran Out of Things to Shoot.",
-  "How Money is Created Out of Thin Air: Fractional Reserve Banking System.",
-  "The Real Reason the Middle Class is Disappearing Across the World.",
-  "How the Ultra-Wealthy Legally Avoid Paying Income Tax Using Debt.",
-  "The Silent Thief: How Inflation Destroys Your Savings Every Single Day.",
-  "The Compound Interest Trap: How to Make Time Work for You Not Banks."
+  "How Costco Makes Millions by Intentionally Losing Money on Rotisserie Chickens."
 ];
+
+function generateMegaLongsTopics() {
+  const categories = [
+    "Deep Space Anomalies & Black Hole Secrets",
+    "Deep Ocean Monsters & Unexplored Abyss",
+    "Ancient Indian Mysteries & Lost Vedic Secrets",
+    "Apex Predators & Deadly Animal Encounters",
+    "Supervolcanoes & Catastrophic Earth Events",
+    "Human Brain Hacks & Hidden Cognitive Powers",
+    "Quantum Physics & Parallel Universe Theories",
+    "Lost Empires & Mysterious Ancient Civilizations",
+    "Mega Construction & Impossible Structures",
+    "Future Artificial Intelligence & Robotics Revolution",
+    "Dark History & Secret Warfare Tactics",
+    "Bizarre Biological Mutations & Immortal Organisms",
+    "Great Financial Crises & Billion-Dollar Scams",
+    "Extreme Survival Stories Against Impossible Odds",
+    "Bermuda Triangle & Mysterious Aviation Disappearances"
+  ];
+
+  const subjects = [
+    "Mariana Trench Abyss", "James Webb Deep Field", "Mount Kailash Mysteries",
+    "Amazon Jungle Tribes", "Yellowstone Supervolcano", "Karakoram Anomaly",
+    "Voyager 1 Interstellar Signal", "Antikythera Mechanism", "Vostok Lake Antarctica",
+    "Blue Hole Sinkhole", "Sargasso Sea Ghost Ships", "Mohenjo-Daro Radiation Myth",
+    "Kola Superdeep Borehole", "Atacama Desert Alien Mummy", "Nazca Lines Geoglyphs",
+    "Gobekli Tepe Temple", "Sentinel Island Tribe", "Danakil Depression Inferno",
+    "Great Blue Hole Belize", "Door to Hell Turkmenistan", "Socotra Island Dragon Blood",
+    "Richat Structure Eye of Sahara", "Mount Everest Death Zone", "Tunguska Explosion 1908",
+    "Bermuda Triangle Flight 19", "Devil Triangle Japan", "Skinwalker Ranch Anomalies",
+    "Pistol Shrimp Shockwave", "Immortal Jellyfish Cellular Loop", "Tardigrade Space Survival",
+    "Golden Poison Dart Frog", "Box Jellyfish Cardiac Toxin", "Black Mamba Strike Velocity",
+    "Saltwater Crocodile Bite Force", "Great White Shark Electroreceptors", "African Elephant Memory",
+    "Sperm Whale Sonic Boom", "Blue-Ringed Octopus Neurotoxin", "Grizzly Bear Claw Force",
+    "Neutron Star Magnetar", "Andromeda Galaxy Collision", "Oumuamua Interstellar Object"
+  ];
+
+  const frameworks = [
+    "Top 10 Unsolved Secrets of",
+    "The Complete 15-Minute Documentary on",
+    "What Science Recently Discovered About",
+    "The Shocking Truth Behind",
+    "Why 99% of People Don't Know About",
+    "The Mysterious Case of",
+    "Inside the Terrifying Realm of",
+    "How Nature Created the Terrifying",
+    "The 10 Deadliest Secrets of",
+    "The Hidden History & Secrets of"
+  ];
+
+  const pool = [...CORE_LONG_TOPICS];
+  let counter = 0;
+
+  while (pool.length < 1250) {
+    const framework = frameworks[counter % frameworks.length];
+    const subject = subjects[counter % subjects.length];
+    const category = categories[counter % categories.length];
+
+    pool.push(`${framework} ${subject} | ${category} Special Documentary (Ep. ${Math.floor(counter / subjects.length) + 1})`);
+    counter++;
+  }
+
+  return pool;
+}
+
+export const AI_IDEAS_BANK_LONGS = generateMegaLongsTopics();
+
