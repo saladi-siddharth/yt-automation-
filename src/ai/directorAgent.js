@@ -32,8 +32,8 @@ export const directorAgent = {
     const originalSegments = scriptPayload.segments || [];
     const scenes = [];
 
-    // ⚡ Fast Micro-Cuts Engine: 3.0 seconds per clip cut for max retention (changes visuals every 3s!)
-    const targetClipDuration = isShort ? 3.5 : 3.0;
+    // ⚡ Fast Micro-Cuts Engine: 5.0s for Long videos (~75 HD cuts) & 3.5s for Shorts
+    const targetClipDuration = isShort ? 3.5 : 5.0;
     const totalClipsNeeded = Math.max(1, Math.ceil(duration / targetClipDuration));
     const cutsPerSegment = Math.max(1, Math.ceil(totalClipsNeeded / Math.max(1, originalSegments.length)));
 
