@@ -7,13 +7,9 @@ const TOKEN_PATH = path.join(config.dataDir, 'youtube_tokens.json');
 
 export const youtubeUploader = {
   getOAuth2Client() {
-    const clientId = process.env.YOUTUBE_CLIENT_ID || config.youtubeClientId;
-    const clientSecret = process.env.YOUTUBE_CLIENT_SECRET || config.youtubeClientSecret;
-    const redirectUri = `http://localhost:${config.port}/oauth2callback`;
-
-    if (!clientId || !clientSecret) {
-      throw new Error('YouTube Client ID or Client Secret is missing in .env');
-    }
+    const clientId = process.env.YOUTUBE_CLIENT_ID || config.youtubeClientId || 'default_client_id';
+    const clientSecret = process.env.YOUTUBE_CLIENT_SECRET || config.youtubeClientSecret || 'default_client_secret';
+    const redirectUri = process.env.YOUTUBE_REDIRECT_URI || `http://localhost:${config.port}/oauth2callback`;
 
     return new google.auth.OAuth2(clientId, clientSecret, redirectUri);
   },
@@ -53,19 +49,44 @@ export const youtubeUploader = {
   },
 
   /**
-   * Get authenticated YouTube API client
+   * Get authenticated YouTube API client (Checks Env Secret & Local Token File)
    */
   getAuthenticatedClient() {
-    if (!fs.existsSync(TOKEN_PATH)) {
+    let tokens = null;
+
+    // 1. Check process.env.YOUTUBE_TOKENS_JSON directly
+    if (process.env.YOUTUBE_TOKENS_JSON) {
+      try {
+        tokens = typeof process.env.YOUTUBE_TOKENS_JSON === 'string'
+          ? JSON.parse(process.env.YOUTUBE_TOKENS_JSON)
+          : process.env.YOUTUBE_TOKENS_JSON;
+        console.log('[YouTubeOAuth] Loaded tokens from YOUTUBE_TOKENS_JSON environment variable.');
+      } catch (e) {
+        console.warn('[YouTubeOAuth] Failed parsing YOUTUBE_TOKENS_JSON env:', e.message);
+      }
+    }
+
+    // 2. Check token file on disk
+    if (!tokens && fs.existsSync(TOKEN_PATH)) {
+      try {
+        tokens = JSON.parse(fs.readFileSync(TOKEN_PATH, 'utf-8'));
+        console.log('[YouTubeOAuth] Loaded tokens from data/youtube_tokens.json file.');
+      } catch (e) {
+        console.warn('[YouTubeOAuth] Failed to load tokens file:', e.message);
+      }
+    }
+
+    if (!tokens || (!tokens.access_token && !tokens.refresh_token)) {
+      console.warn('[YouTubeOAuth] No valid OAuth tokens found in env or data/youtube_tokens.json.');
       return null;
     }
+
     try {
-      const tokens = JSON.parse(fs.readFileSync(TOKEN_PATH, 'utf-8'));
       const oauth2Client = this.getOAuth2Client();
       oauth2Client.setCredentials(tokens);
       return google.youtube({ version: 'v3', auth: oauth2Client });
     } catch (e) {
-      console.warn('[YouTubeOAuth] Failed to load tokens:', e.message);
+      console.warn('[YouTubeOAuth] Client initialization error:', e.message);
       return null;
     }
   },
@@ -73,36 +94,49 @@ export const youtubeUploader = {
   /**
    * Upload video file directly to YouTube channel
    */
-  async uploadVideo({ videoPath, title, description, tags, privacyStatus = 'private', publishAt = null }) {
+  async uploadVideo({ videoPath, title, description, tags, privacyStatus = 'public', publishAt = null }) {
     const youtube = this.getAuthenticatedClient();
     if (!youtube) {
-      console.log('[YouTubeUploader] Channel not connected yet. Video saved locally in output directory.');
-      return { success: false, reason: 'Channel not authenticated via OAuth' };
+      console.log('[YouTubeUploader] ⚠️ YouTube Channel not connected or tokens missing! Video saved locally in output/ directory.');
+      return { success: false, reason: 'Channel tokens not present or invalid. Connect channel via dashboard or set YOUTUBE_TOKENS_JSON secret.' };
     }
 
-    console.log(`[YouTubeUploader] Uploading "${title}" to YouTube...`);
+    console.log(`[YouTubeUploader] Uploading "${title}" to YouTube (Privacy: ${privacyStatus})...`);
 
-    const res = await youtube.videos.insert({
-      part: ['snippet', 'status'],
-      requestBody: {
-        snippet: {
-          title,
-          description,
-          tags: tags || ['animal facts hindi', 'shorts'],
-          categoryId: '15' // Pets & Animals
+    try {
+      const res = await youtube.videos.insert({
+        part: ['snippet', 'status'],
+        requestBody: {
+          snippet: {
+            title: title.substring(0, 100),
+            description: description || title,
+            tags: tags || ['viral facts hindi', 'documentary'],
+            categoryId: '27' // Education / Knowledge
+          },
+          status: {
+            privacyStatus: privacyStatus || 'public', // Set to 'public' for immediate publishing
+            selfDeclaredMadeForKids: false,
+            publishAt: publishAt || undefined
+          }
         },
-        status: {
-          privacyStatus, // 'private', 'unlisted', or 'public'
-          selfDeclaredMadeForKids: false,
-          publishAt: publishAt || undefined
+        media: {
+          body: fs.createReadStream(videoPath)
         }
-      },
-      media: {
-        body: fs.createReadStream(videoPath)
-      }
-    });
+      });
 
-    console.log(`[YouTubeUploader] Upload successful! Video ID: ${res.data.id}`);
-    return { success: true, videoId: res.data.id, url: `https://youtu.be/${res.data.id}` };
+      const videoId = res.data.id;
+      const videoUrl = `https://youtu.be/${videoId}`;
+      const studioUrl = `https://studio.youtube.com/video/${videoId}/edit`;
+
+      console.log(`[YouTubeUploader SUCCESS] Video uploaded! Video ID: ${videoId}`);
+      console.log(`[YouTubeUploader Link] Live Video URL: ${videoUrl}`);
+      console.log(`[YouTubeUploader Studio] Manage in YouTube Studio: ${studioUrl}`);
+
+      return { success: true, videoId, url: videoUrl, studioUrl };
+    } catch (err) {
+      console.error(`[YouTubeUploader ERROR] Upload failed: ${err.message}`);
+      return { success: false, reason: err.message };
+    }
   }
 };
+
