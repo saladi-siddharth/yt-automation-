@@ -99,12 +99,12 @@ export const viralVideoRenderer = {
       fs.writeFileSync(concatListPath, concatContent, 'utf-8');
 
       const rawConcatPath = path.join(videoOutputDir, 'raw_concat.mp4');
-      const concatCmd = `"${ffmpegPath}" -y -f concat -safe 0 -i "${concatListPath.replace(/\\/g, '/')}" -c:v libx264 -preset fast -crf 22 -pix_fmt yuv420p "${rawConcatPath.replace(/\\/g, '/')}"`;
-      await execPromise(concatCmd, { cwd: videoOutputDir, timeout: 120000 });
+      // UPGRADE: Use stream copy (-c:v copy) to instantly concat the pre-encoded clips without re-encoding
+      const concatCmd = `"${ffmpegPath}" -y -f concat -safe 0 -i "${concatListPath.replace(/\\/g, '/')}" -c:v copy "${rawConcatPath.replace(/\\/g, '/')}"`;
+      await execPromise(concatCmd, { cwd: videoOutputDir, timeout: 300000 });
 
       // ═══════════════════════════════════════════════════════════════
       // PHASE 3: Build text overlay filter + audio in SINGLE filter_complex
-      // (FIXES the v3 dual filter_complex bug)
       // ═══════════════════════════════════════════════════════════════
       const fontPath = fs.existsSync('C:/Windows/Fonts/arialbd.ttf') ? 'C\\\\:/Windows/Fonts/arialbd.ttf' : 'C\\\\:/Windows/Fonts/arial.ttf';
 
@@ -153,7 +153,7 @@ export const viralVideoRenderer = {
         `drawtext=fontfile='${fontPath}':text='LIKE & SUBSCRIBE':fontcolor=0xFFD700:fontsize=${isShort ? 40 : 36}:borderw=3:bordercolor=black:shadowx=2:shadowy=2:shadowcolor=black@0.9:x=(w-text_w)/2:y=${ctaY}:enable='between(t,${ctaStart},${totalDuration})'`
       );
 
-      // Write filter to script file (avoids command line length limits)
+      // Write filter to script file
       const vfChain = textFilters.join(',');
       const filterScriptPath = path.join(videoOutputDir, 'filter_script.txt');
       fs.writeFileSync(filterScriptPath, vfChain, 'utf-8');
@@ -163,14 +163,13 @@ export const viralVideoRenderer = {
       // ═══════════════════════════════════════════════════════════════
       let finalCmd = '';
       if (hasAudio) {
-        // Unified: video overlays via filter_script, audio mastering inline
-        finalCmd = `"${ffmpegPath}" -y -i "${rawConcatPath.replace(/\\/g, '/')}" -i "${audioManifest.audioPath.replace(/\\/g, '/')}" -filter_complex_script "${filterScriptPath.replace(/\\/g, '/')}" -map 0:v -map 1:a -c:v libx264 -preset fast -crf 22 -c:a aac -b:a 192k -shortest "${finalVideoPath.replace(/\\/g, '/')}"`;
+        finalCmd = `"${ffmpegPath}" -y -i "${rawConcatPath.replace(/\\/g, '/')}" -i "${audioManifest.audioPath.replace(/\\/g, '/')}" -filter_complex_script "${filterScriptPath.replace(/\\/g, '/')}" -map 0:v -map 1:a -c:v libx264 -preset superfast -crf 22 -c:a aac -b:a 192k -shortest "${finalVideoPath.replace(/\\/g, '/')}"`;
       } else {
-        finalCmd = `"${ffmpegPath}" -y -i "${rawConcatPath.replace(/\\/g, '/')}" -filter_complex_script "${filterScriptPath.replace(/\\/g, '/')}" -c:v libx264 -preset fast -crf 22 -pix_fmt yuv420p -t ${totalDuration} "${finalVideoPath.replace(/\\/g, '/')}"`;
+        finalCmd = `"${ffmpegPath}" -y -i "${rawConcatPath.replace(/\\/g, '/')}" -filter_complex_script "${filterScriptPath.replace(/\\/g, '/')}" -c:v libx264 -preset superfast -crf 22 -pix_fmt yuv420p -t ${totalDuration} "${finalVideoPath.replace(/\\/g, '/')}"`;
       }
 
-      console.log(`[VideoRenderer v4.0] Final composite: captions + audio sync + CRF 22 quality...`);
-      await execPromise(finalCmd, { cwd: videoOutputDir, timeout: 300000 });
+      console.log(`[VideoRenderer v4.0] Final composite: captions + audio sync + superfast CRF 22 quality...`);
+      await execPromise(finalCmd, { cwd: videoOutputDir, timeout: 1200000 });
 
       // Cleanup
       try { fs.unlinkSync(rawConcatPath); } catch (e) {}
