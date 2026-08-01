@@ -57,9 +57,8 @@ export const youtubeUploader = {
     // 1. Check process.env.YOUTUBE_TOKENS_JSON directly
     if (process.env.YOUTUBE_TOKENS_JSON) {
       try {
-        tokens = typeof process.env.YOUTUBE_TOKENS_JSON === 'string'
-          ? JSON.parse(process.env.YOUTUBE_TOKENS_JSON)
-          : process.env.YOUTUBE_TOKENS_JSON;
+        const rawStr = String(process.env.YOUTUBE_TOKENS_JSON).trim().replace(/^'+|'+$/g, '').replace(/^"+|"+$/g, '');
+        tokens = JSON.parse(rawStr);
         console.log('[YouTubeOAuth] Loaded tokens from YOUTUBE_TOKENS_JSON environment variable.');
       } catch (e) {
         console.warn('[YouTubeOAuth] Failed parsing YOUTUBE_TOKENS_JSON env:', e.message);

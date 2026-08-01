@@ -139,17 +139,21 @@ export const scheduleManager = {
           videoPath: renderManifest.finalVideoPath,
           title: scriptPayload.metadata ? scriptPayload.metadata.titleHindi : scriptPayload.titleHindi,
           description: scriptPayload.metadata ? scriptPayload.metadata.descriptionHindi : scriptPayload.titleHindi,
-          tags: scriptPayload.metadata ? scriptPayload.metadata.tags : ['animal facts hindi', 'shorts'],
-          privacyStatus: targetPublishDate ? 'private' : 'public',
+          tags: scriptPayload.metadata ? scriptPayload.metadata.tags : ['viral facts hindi', 'documentary'],
+          privacyStatus: 'public', // Direct Public Upload
           publishAt: targetPublishDate ? targetPublishDate.toISOString() : null
         });
+
         if (uploadResult.success) {
           this.log(`[YouTubeUpload SUCCESS] Video published directly to YouTube channel! Video URL: ${uploadResult.url}`);
+          this.log(`[YouTube Studio Link] Manage video: ${uploadResult.studioUrl}`);
         } else {
-          this.log(`[YouTubeUpload Notice] ${uploadResult.reason || 'Channel authorization pending.'}`);
+          this.log(`[YouTubeUpload ERROR] ${uploadResult.reason || 'Channel upload failed.'}`);
+          throw new Error(`YouTube Upload Failed: ${uploadResult.reason}`);
         }
       } catch (uploadErr) {
-        this.log(`[YouTubeUpload Warning] Upload failed: ${uploadErr.message}`);
+        this.log(`[YouTubeUpload CRITICAL ERROR] Upload failed: ${uploadErr.message}`);
+        throw uploadErr;
       }
 
       this.log(`[Pipeline SUCCESS] ${type.toUpperCase()} video successfully created, saved to TiDB Cloud & scheduled!`);
