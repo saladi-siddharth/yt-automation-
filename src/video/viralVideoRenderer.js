@@ -77,7 +77,7 @@ export const viralVideoRenderer = {
           'fps=30'
         ].join(',');
 
-        const clipCmd = `"${ffmpegPath}" -y -i "${clipBaseName}" -vf "${vf}" -t ${clipDuration} -c:v libx264 -preset fast -crf 22 -an "${processedName}"`;
+        const clipCmd = `"${ffmpegPath}" -y -i "${clipBaseName}" -vf "${vf}" -t ${clipDuration} -c:v libx264 -preset superfast -crf 22 -an "${processedName}"`;
 
         try {
           await execPromise(clipCmd, { cwd: path.join(videoOutputDir, 'clips'), timeout: 60000 });
